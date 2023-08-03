@@ -64,7 +64,7 @@ def getstatus():
     pword=actionlist[1]
     ur_l=actionlist[2]
     print(actionlist)
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver=webdriver.Chrome(options=Options().add_argument("--headless"))
     driver.get(ur_l)
     idlist=[]
     for id in actionlist:
@@ -189,7 +189,7 @@ def selenium():
     action_list.append(username)
     action_list.append(password)
     action_list.append(url)
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver=webdriver.Chrome(options=Options().add_argument("--headless"))
     try:
         #load first page
         driver.get(url)
@@ -653,7 +653,7 @@ def AIGenerate():
     #this method will open an actual web browser and preform operations on its own like parsing and clicks and scrolls. VERY useful and a lot of potential 
     #great tutorial https://www.youtube.com/watch?v=SPM1tm2ZdK4
     #standard for every app
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver=webdriver.Chrome(options=Options().add_argument("--headless"))
     actions=ActionChains(driver)
     global url
     global username
