@@ -15,12 +15,9 @@ import numpy as np
 import threading
 import tempfile
 import time
-import os   
-import logging
+import os 
 import sqlite3
 import io
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
 global start 
 global done
 start=True
@@ -1229,4 +1226,3 @@ def AIGenerate():
         #for action list, add interpretation for username,ID , password,ID , submit,ID , return(hit enter), wait(wait until the next availible ID in the list has loaded(no more than 45 seconds))
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
-    #app.run(debug=True,host='0.0.0.0')
