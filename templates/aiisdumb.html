@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>error</title>
+    <style>
+      .iframe-container {
+        position: relative;
+        width: 1000px;
+        height: 1000px; /* Adjust the height as needed */
+        margin: 0 auto;
+      }
+      
+      .iframe-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1000px;
+        height: 1000px;
+      }
+      
+      .iframe-container iframe:last-child {
+        z-index: 1;
+      }
+
+        body {
+            margin: 0;
+        }
+        canvas {
+            display: block;
+        }
+
+        body {
+            margin: 0;
+            text-align: center;
+        }
+
+        /* Add this CSS to prevent scrolling */
+        body.disable-scroll {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+    </style>
+    <script>
+        // JavaScript to disable scrolling on mobile/touchscreen devices
+        window.addEventListener('load', function() {
+          var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          if (isMobile) {
+            document.body.classList.add('disable-scroll');
+          }
+        });
+      </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+    <h1>There Was An Error Processing Your Log In Page</h1>
+    <h2>Our system uses AI to log into different assignment services, but sometimes it messes up. Help it out by showing it how to interact with your organization's sign-in page</h2>
+    <h4>Please select all the relevant elements on your page (text boxes and buttons) by drawing a box over them with your finger. It is important that you select all the buttons on the page, even if you would not normally click on them when signing in. We just need to know that they are there. However, you should not select links, only buttons. After selecting each element, use the dropdown menu next to it to select what you want that element to do. Select "None" if you would not normally interact with the element when signing in to your account.</h4>
+    <h4>For a more in-depth tutorial, click <a href="#">Here</a> (ADD TUTORIAL REMINDER)</h4>
+    <h3>Errors can also be caused by slow internet connectivity. If you have been sent to this page multiple times, please try again when your internet connection is under less demand.</h3>
+    <div class="iframe-container">
+        <iframe id="input" src="{{url_for('aiisdumb')}}" width="1000" height="1000"></iframe> 
+    </div>
+</body>
+</html>

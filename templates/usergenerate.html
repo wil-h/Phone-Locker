@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    html, body {
+      width: 1000px;
+      height: 1000px;
+    }
+    body.disable-scroll {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+        }
+  </style>
+</head>
+<body>
+  <script>
+    let canvas;
+    let img;
+    let startingx;
+    let startingy;
+    let input;
+    let Held = false;
+    let actionlist=[];
+    let mode="draw";
+    let drawi;
+    let deletei;
+    let length;
+    let width;
+    let xstart;
+    let ystart;
+    let select=false;
+    document.body.classList.add('disable-scroll');
+
+    function preload() {
+      drawi=loadImage("{{url_for('servedraw')}}");
+      deletei=loadImage("{{url_for('servedelete')}}");
+      submiti=loadImage("{{url_for('servesubmit')}}")
+      expandedi=loadImage("{{url_for('serveexpanded')}}")
+      usernamei=loadImage("{{url_for('serveusername')}}")
+      passwordi=loadImage("{{url_for('servepassword')}}")
+      buttoni=loadImage("{{url_for('servebutton')}}")
+      nonei=loadImage("{{url_for('servenone')}}")
+    }
+
+    function setup() {
+      canvas = createCanvas(1000, 1000);
+      canvas.parent("canvas-container");
+    }
+
+    function draw() {
+        fetch('/usergenerate')
+          .then(response => response.blob())
+          .then(blob => {
+            if (img) {
+              img.remove(); // Remove the previous image
+            }
+            img = createImg(URL.createObjectURL(blob), "", "", () => {
+              image(img, 0, 0, 1000, 1000);
+            });
+            img.parent("canvas-container"); // Append the image to the canvas container
+           });
+        if(mode==="draw"){
+          image(drawi,425,0,150,70);
+        }
+        if(mode==="delete"){
+          image(deletei,425,0,150,70);
+        }
+        image(submiti,390,930,200,50)
+        for(let i=0; i<actionlist.length; i+=5){
+          strokeWeight(10);
+          stroke(255,0,0)
+          noFill();
+          rect(actionlist[i+1],actionlist[i+2],actionlist[i+3],actionlist[i+4])
+          if(actionlist[i]==="username"){
+            image(usernamei,actionlist[i+1]-5,actionlist[i+2]+actionlist[i+4]+5,75,25)
+          }
+          if(actionlist[i]==="password"){
+            image(passwordi,actionlist[i+1]-5,actionlist[i+2]+actionlist[i+4]+5,75,25)
+          }
+          if(actionlist[i]==="button"){
+            image(buttoni,actionlist[i+1]-5,actionlist[i+2]+actionlist[i+4]+5,75,25)
+          }
+          if(actionlist[i]==="none"){
+            image(nonei,actionlist[i+1]-5,actionlist[i+2]+actionlist[i+4]+5,75,25)
+          }
+          if(actionlist[i]==="expanded"){
+            image(expandedi,actionlist[i+1]-5,actionlist[i+2]+actionlist[i+4]+5,75,125)
+          }
+        }
+
+
+        if(Held===true){
+          if(mode==="draw"){
+          mouseDrag()
+          }
+        }
+      }
+    function mousePressed() {
+      input = "mouse"
+      if(mouseX>425){
+          if(mouseX<575){
+            if(mouseY<70){
+              Held=false;
+              if(mouseX<500){
+                mode="draw"
+              }
+              if(mouseX>500){
+                mode="delete"
+            }
+          }
+        }
+      }
+      if (mode==="draw"){
+        startingx=mouseX;
+        startingy=mouseY;
+        Held=true;
+      if(mouseX>390 && mouseX<590 && mouseY>930 && mouseY<980){
+        Held=false;
+        const r2 = JSON.stringify(actionlist);
+				document.getElementById("text_to_send").value = r2;
+				document.getElementById("form_id").action = "/recieve";
+				document.getElementById("form_id").submit();
+      }
+      for(let i=0; i<actionlist.length; i+=5){
+        if(actionlist[i]!="expanded"){
+          if(mouseX>actionlist[i+1]-5 && mouseX<actionlist[i+1]+70 && mouseY>actionlist[i+2]+actionlist[i+4]+5 && mouseY<actionlist[i+2]+actionlist[i+4]+30){
+            Held=false;
+            actionlist[i]="expanded"
+          }
+          }
+        if(actionlist[i]==="expanded"){
+          if(mouseX>actionlist[i+1]-5 && mouseX<actionlist[i+1]+70){
+            if(mouseY>actionlist[i+2]+actionlist[i+4]+30 && mouseY<actionlist[i+2]+actionlist[i+4]+55){
+              actionlist[i]="username"
+            }
+            if(mouseY>actionlist[i+2]+actionlist[i+4]+55 && mouseY<actionlist[i+2]+actionlist[i+4]+80){
+              actionlist[i]="password"
+            }
+            if(mouseY>actionlist[i+2]+actionlist[i+4]+80 && mouseY<actionlist[i+2]+actionlist[i+4]+105){
+              actionlist[i]="button"
+            }
+            if(mouseY>actionlist[i+2]+actionlist[i+4]+105 && mouseY<actionlist[i+2]+actionlist[i+4]+130){
+              actionlist[i]="none"
+            }
+          }
+        }
+        }
+      }
+      if(mode==="delete"){
+        for(let i=0; i<actionlist.length; i+=5){
+          if (actionlist[i+1] !== null && actionlist[i+1] !== undefined && !isNaN(actionlist[i+1])) {
+            if(mouseX>actionlist[i+1] && mouseX<actionlist[i+1]+actionlist[i+3] && mouseY>actionlist[i+2] && mouseY<actionlist[i+2]+actionlist[i+4]){
+              actionlist.splice(i+4,1);
+              actionlist.splice(i+3,1);
+              actionlist.splice(i+2,1);
+              actionlist.splice(i+1,1);
+              actionlist.splice(i,1);
+              break;
+            }
+        }
+      }
+    }
+    }
+    function mouseDrag() {
+      if(input==="mouse"){
+        width=Math.abs(mouseY-startingy);
+        length=Math.abs(mouseX-startingx);
+        if(mouseY>startingy){
+          ystart=startingy;
+        }
+        if(mouseY<startingy){
+          ystart=mouseY;
+        }
+        if(mouseX>startingx){
+          xstart=startingx;
+        }
+        if(mouseX<startingx){
+          xstart=mouseX
+        }
+        if (xstart !== null && xstart !== undefined && !isNaN(xstart)) {
+          if (ystart !== null && ystart !== undefined && !isNaN(ystart)) {
+            strokeWeight(7);
+            stroke(255,0,0)
+            noFill();
+            rect(xstart, ystart, length, width)
+          }
+        }
+      }
+    if(input==="touch"){
+      touch = event.touches[0];
+      width=Math.abs(touch.clientY-startingy);
+      length=Math.abs(touch.clientX-startingx);
+      if(touch.clientY>startingy){
+        ystart=startingy;
+      }
+      if(touch.clientY<startingy){
+        ystart=touch.clientY;
+      }
+      if(touch.clientX>startingx){
+        xstart=startingx;
+      }
+      if(touch.clientX<startingx){
+        xstart=touch.clientX
+      }
+      if (xstart !== null && xstart !== undefined && !isNaN(xstart)) {
+        if (ystart !== null && ystart !== undefined && !isNaN(ystart)) {
+          strokeWeight(7);
+          stroke(255,0,0)
+          noFill();
+          rect(xstart, ystart, length, width)
+        }
+      }
+    }
+    }
+    function mouseReleased() {
+      if(Held){
+      if(mode==="draw"){
+        if (xstart !== null && xstart !== undefined && !isNaN(xstart)) {
+          if (ystart !== null && ystart !== undefined && !isNaN(ystart)) {
+            if(width!=0 && length!=0){
+              actionlist.push("username",xstart,ystart,length,width)
+            }
+          }
+        }
+      }
+    }
+    Held=false;
+  }
+  document.addEventListener("touchstart", function(event) {
+    input="touch"
+    var touch = event.touches[0];    
+    if(touch.clientX>425){
+          if(touch.clientX<575){
+            if(touch.clientY<70){
+              Held=false;
+              if(touch.clientX<500){
+                mode="draw"
+              }
+              if(touch.clientX>500){
+                mode="delete"
+            }
+          }
+        }
+      }
+      if (mode==="draw"){
+        startingx=touch.clientX;
+        startingy=touch.clientY;
+        Held=true;
+      if(touch.clientX>390 && touch.clientX<590 && touch.clientY>930 && touch.clientY<980){
+        Held=false;
+        const r2 = JSON.stringify(actionlist);
+				document.getElementById("text_to_send").value = r2;
+				document.getElementById("form_id").action = "/recieve";
+				document.getElementById("form_id").submit();
+      }
+      for(let i=0; i<actionlist.length; i+=5){
+        if(actionlist[i]!="expanded"){
+          if(touch.clientX>actionlist[i+1]-5 && touch.clientX<actionlist[i+1]+70 && touch.clientY>actionlist[i+2]+actionlist[i+4]+5 && touch.clientY<actionlist[i+2]+actionlist[i+4]+30){
+            Held=false;
+            actionlist[i]="expanded"
+          }
+          }
+        if(actionlist[i]==="expanded"){
+          if(touch.clientX>actionlist[i+1]-5 && touch.clientX<actionlist[i+1]+70){
+            if(touch.clientY>actionlist[i+2]+actionlist[i+4]+30 && touch.clientY<actionlist[i+2]+actionlist[i+4]+55){
+              actionlist[i]="username"
+            }
+            if(touch.clientY>actionlist[i+2]+actionlist[i+4]+55 && touch.clientY<actionlist[i+2]+actionlist[i+4]+80){
+              actionlist[i]="password"
+            }
+            if(touch.clientY>actionlist[i+2]+actionlist[i+4]+80 && touch.clientY<actionlist[i+2]+actionlist[i+4]+105){
+              actionlist[i]="button"
+            }
+            if(touch.clientY>actionlist[i+2]+actionlist[i+4]+105 && touch.clientY<actionlist[i+2]+actionlist[i+4]+130){
+              actionlist[i]="none"
+            }
+          }
+        }
+        }          
+    }
+  });
+    document.addEventListener("touchend", function() {
+      if(Held){
+      if(mode==="draw"){
+        touch = event.touches[0];
+        if (xstart !== null && xstart !== undefined && !isNaN(xstart)) {
+          if (ystart !== null && ystart !== undefined && !isNaN(ystart)) {
+            if(width!=0 && length!=0){
+              actionlist.push("username",xstart,ystart,length,width)
+            }
+          }
+        }
+      }
+    }
+    Held=false;
+  });
+  </script>
+  <div id="canvas-container"></div>
+  <form id="form_id" action="{{url_for('recieve')}}" method="post">
+		<input type="hidden" id="text_to_send" name="actionlist" value="">
+	</form>
+</body>
+</html>
