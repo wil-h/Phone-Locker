@@ -463,13 +463,13 @@ def getstatus():
             try:
                 days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
             except:
-                print("false")
+                return("false")
             for day in days:
                 if day.text=="Today" or day.text=="Tomorrow":
-                    print("true")
-            print("false")
+                    return("true")
+            return("false")
     else:
-        print("false")
+        return("false")
 
     #TEST THIS ONCE TEACHERS START ASSIGNING STUFF FOR SCHOOL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 @app.route('/api/setup', methods=['GET'])
