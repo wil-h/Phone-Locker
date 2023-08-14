@@ -21,7 +21,6 @@ import sqlite3
 import io
 
 #TBD:
-#figure out status.py
 #make tutorial
 #test with father
 
@@ -79,7 +78,10 @@ def getstatus():
     uname=actionlist[0]
     pword=actionlist[1]
     ur_l=actionlist[2]
-    driver=webdriver.Chrome(service=Service('chromedriver.exe'), options=Options().add_argument("--headless"))
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.binary_location='chrome.exe'
+    driver=webdriver.Chrome(service=Service('chromedriver.exe'), options=chrome_options)
     driver.get(ur_l)
     idlist=[]
     noidpage=False
@@ -551,7 +553,10 @@ def selenium(IP):
     action_list.append(username)
     action_list.append(password)
     action_list.append(url)
-    driver=webdriver.Chrome(service=Service('chromedriver.exe'), options=Options().add_argument("--headless"))
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.binary_location='chrome.exe'
+    driver=webdriver.Chrome(service=Service('chromedriver.exe'), options=chrome_options)
     try:
         #load first page
         driver.get(url)
@@ -1061,7 +1066,10 @@ def AIGenerate():
     #this method will open an actual web browser and preform operations on its own like parsing and clicks and scrolls.
     #great tutorial https://www.youtube.com/watch?v=SPM1tm2ZdK4
     #standard for every app
-    driver=webdriver.Chrome(service=Service('chromedriver.exe'), options=Options().add_argument("--headless"))
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.binary_location='chrome.exe'
+    driver=webdriver.Chrome(service=Service('chromedriver.exe'), options=chrome_options)
     actions=ActionChains(driver)
     #get these after they were entered 
     username=request.form['username']
