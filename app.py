@@ -19,10 +19,18 @@ import os
 import logging
 import sqlite3
 import io
+
+#TBD:
+#figure out status.py
+#make tutorial
+#test with father
+
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR) 
+
 app = Flask(__name__)
 app.config['DATABASE'] = os.path.join(app.root_path, 'database.db')
+
 def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect(
@@ -71,7 +79,7 @@ def getstatus():
     uname=actionlist[0]
     pword=actionlist[1]
     ur_l=actionlist[2]
-    driver=webdriver.Chrome(options=Options().add_argument("--headless"))
+    driver=webdriver.Chrome(service=Service('chromedriver.exe'), options=Options().add_argument("--headless"))
     driver.get(ur_l)
     idlist=[]
     noidpage=False
@@ -543,7 +551,7 @@ def selenium(IP):
     action_list.append(username)
     action_list.append(password)
     action_list.append(url)
-    driver=webdriver.Chrome(options=Options().add_argument("--headless"))
+    driver=webdriver.Chrome(service=Service('chromedriver.exe'), options=Options().add_argument("--headless"))
     try:
         #load first page
         driver.get(url)
@@ -1053,7 +1061,7 @@ def AIGenerate():
     #this method will open an actual web browser and preform operations on its own like parsing and clicks and scrolls.
     #great tutorial https://www.youtube.com/watch?v=SPM1tm2ZdK4
     #standard for every app
-    driver=webdriver.Chrome(options=Options().add_argument("--headless"))
+    driver=webdriver.Chrome(service=Service('chromedriver.exe'), options=Options().add_argument("--headless"))
     actions=ActionChains(driver)
     #get these after they were entered 
     username=request.form['username']
@@ -1621,8 +1629,6 @@ def AIGenerate():
         return render_template('aiisdumb.html')
        
 
-        #TBD:build a comparatively simple pygame app after confirming it can be placed in an iframe
-        #for action list, add interpretation for username,ID , password,ID , submit,ID , return(hit enter), wait(wait until the next availible ID in the list has loaded(no more than 45 seconds))
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
     #app.run(debug=True,host='0.0.0.0')
