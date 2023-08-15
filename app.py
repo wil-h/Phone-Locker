@@ -80,8 +80,8 @@ def getstatus():
     ur_l=actionlist[2]
     chrome_options = Options()
     chrome_options.add_argument("--headless")
-    chrome_options.binary_location='chrome.exe'
-    driver=webdriver.Chrome(service=Service('chromedriver.exe'), options=chrome_options)
+    chrome_options.binary_location='chrome/chrome.exe'
+    driver=webdriver.Chrome(service=Service('chrome/chromedriver.exe'), options=chrome_options)
     driver.get(ur_l)
     idlist=[]
     noidpage=False
@@ -469,6 +469,7 @@ def getstatus():
         if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
             WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
             driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
+            time.sleep(5)
             days=[]
             try:
                 days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
@@ -555,8 +556,8 @@ def selenium(IP):
     action_list.append(url)
     chrome_options = Options()
     chrome_options.add_argument("--headless")
-    chrome_options.binary_location='chrome.exe'
-    driver=webdriver.Chrome(service=Service('chromedriver.exe'), options=chrome_options)
+    chrome_options.binary_location='chrome/chrome.exe'
+    driver=webdriver.Chrome(service=Service('chrome/chromedriver.exe'), options=chrome_options)
     try:
         #load first page
         driver.get(url)
@@ -1068,8 +1069,8 @@ def AIGenerate():
     #standard for every app
     chrome_options = Options()
     chrome_options.add_argument("--headless")
-    chrome_options.binary_location='chrome.exe'
-    driver=webdriver.Chrome(service=Service('chromedriver.exe'), options=chrome_options)
+    chrome_options.binary_location='chrome/chrome.exe'
+    driver=webdriver.Chrome(service=Service('chrome/chromedriver.exe'), options=chrome_options)
     actions=ActionChains(driver)
     #get these after they were entered 
     username=request.form['username']
