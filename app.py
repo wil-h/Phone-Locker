@@ -8,6 +8,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from flask import Flask, request, render_template, send_file, g, jsonify
+from waitress import serve
 from ultralytics import YOLO
 from PIL import Image
 import random
@@ -78,10 +79,14 @@ def getstatus():
     uname=actionlist[0]
     pword=actionlist[1]
     ur_l=actionlist[2]
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.binary_location='chrome/chrome.exe'
-    driver=webdriver.Chrome(service=Service('chrome/chromedriver.exe'), options=chrome_options)
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("enable-automation")
+    options.add_argument("--disable-infobars")
+    options.add_argument("--disable-dev-shm-usage")
+    driver = webdriver.Chrome(options=options)
     driver.get(ur_l)
     idlist=[]
     noidpage=False
@@ -554,10 +559,14 @@ def selenium(IP):
     action_list.append(username)
     action_list.append(password)
     action_list.append(url)
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.binary_location='chrome/chrome.exe'
-    driver=webdriver.Chrome(service=Service('chrome/chromedriver.exe'), options=chrome_options)
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("enable-automation")
+    options.add_argument("--disable-infobars")
+    options.add_argument("--disable-dev-shm-usage")
+    driver = webdriver.Chrome(options=options)
     try:
         #load first page
         driver.get(url)
@@ -1067,10 +1076,14 @@ def AIGenerate():
     #this method will open an actual web browser and preform operations on its own like parsing and clicks and scrolls.
     #great tutorial https://www.youtube.com/watch?v=SPM1tm2ZdK4
     #standard for every app
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.binary_location='chrome/chrome.exe'
-    driver=webdriver.Chrome(service=Service('chrome/chromedriver.exe'), options=chrome_options)
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("enable-automation")
+    options.add_argument("--disable-infobars")
+    options.add_argument("--disable-dev-shm-usage")
+    driver = webdriver.Chrome(options=options)
     actions=ActionChains(driver)
     #get these after they were entered 
     username=request.form['username']
@@ -1639,5 +1652,6 @@ def AIGenerate():
        
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    serve(app,host='0.0.0.0',port=5000)
+    #app.run(host='0.0.0.0')
     #app.run(debug=True,host='0.0.0.0')
