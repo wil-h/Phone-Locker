@@ -8,7 +8,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from flask import Flask, request, render_template, send_file, g, jsonify
-from waitress import serve
 from ultralytics import YOLO
 from PIL import Image
 import random
@@ -1652,6 +1651,5 @@ def AIGenerate():
        
 
 if __name__ == '__main__':
-    serve(app,host='0.0.0.0',port=5000)
-    #app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0')
     #app.run(debug=True,host='0.0.0.0')
