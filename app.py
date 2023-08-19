@@ -11,6 +11,7 @@ from flask import Flask, request, render_template, send_file, g, jsonify
 from ultralytics import YOLO
 from PIL import Image
 import random
+from waitress import serve
 import numpy as np
 import threading
 import tempfile
@@ -1651,5 +1652,6 @@ def AIGenerate():
        
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    serve(app,host = '0.0.0.0',port = 5000)
+    #app.run(host='0.0.0.0')
     #app.run(debug=True,host='0.0.0.0')
