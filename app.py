@@ -1648,7 +1648,10 @@ def AIGenerate():
         #window will close when operations are done
     except Exception as e:
         driver.quit()
-        return(str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        line_number = exc_tb.tb_lineno
+        estr=str(e)+","+str(line_number)
+        return(str(estr))
         #return render_template('aiisdumb.html')
        
 
