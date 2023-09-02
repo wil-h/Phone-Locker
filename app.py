@@ -35,7 +35,7 @@ def takeimage():
         options.add_argument("--disable-infobars")
         options.add_argument("--disable-dev-shm-usage")
         driver = webdriver.Chrome(options=options)
-        driver.get("https://google.com")
+        driver.get("https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom")
         time.sleep(5)
         img=driver.get_screenshot_as_png()
         image=Image.open(io.BytesIO(img))
