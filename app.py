@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from flask import Flask, request, render_template, send_file, g, jsonify
+from flask import Flask, request, render_template, send_file, g, jsonify, Response
 from ultralytics import YOLO
 from PIL import Image
 import random
@@ -36,11 +36,18 @@ def takeimage():
         options.add_argument("--disable-dev-shm-usage")
         driver = webdriver.Chrome(options=options)
         driver.get("https://google.com")
-        time.sleep(10)
+        time.sleep(5)
         img=driver.get_screenshot_as_png()
-        return send_file(img, mimetype="image/png")
-    except Error as e:
-        return e
+        image=Image.open(io.BytesIO(img))
+        img_bytes_io = io.BytesIO()
+        image.save(img_bytes_io, format='PNG')
+
+        # Set the content type and send the image as a response
+        response = Response(img_bytes_io.getvalue())
+        response.headers['Content-Type'] = 'image/png'
+        return response
+    except Exception as e:
+        return(str(e))
 
 if __name__ == '__main__':
     serve(app,host = '0.0.0.0',port = 5000)
