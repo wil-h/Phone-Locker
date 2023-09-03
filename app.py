@@ -58,6 +58,7 @@ def read_db(IP):
             reun.append(dic["DATA"])
             reun.append(dic["EMPTY"])
             reun.append(dic["RECEIVED"])
+            reun.append(dic["IMAGE"])
             return(reun)
     
 with app.app_context():
@@ -590,21 +591,25 @@ def selenium(IP):
                 img=driver.get_screenshot_as_png()
                 pil=Image.open(io.BytesIO(img))
                 pil=pil.resize((1000,1000))
-                pil.save('selenium_images/'+str(rep)+".png")
-                #os.remove(temp_file.name)
+                buffer=io.BytesIO()
+                pil.save(buffer,format='PNG')
+                imgdata=buffer.getvalue()
+                with app.app_context():
+                    db=get_db()
+                    cursor=db.cursor()
+                    cursor.execute("UPDATE al SET IMAGE = ? WHERE IP = ?", (imgdata, IP))
+                    db.commit()
                 rep+=1
                 with app.app_context():
                     data_received=read_db(IP)[4]
-                if len(os.listdir('selenium_images'))>15:
+                if rep>20000:
                     break
                 if driver.current_url==url:
                     break
+                time.sleep(0.1)
             #clear image cache
             time.sleep(5)
-            leng=len(os.listdir('selenium_images'))
-            for file in os.listdir('selenium_images'):
-                os.remove(str('selenium_images/'+file))
-            if leng>15:
+            if rep>20000:
                 break 
             with app.app_context():
                 datal=read_db(IP)[8]
@@ -1032,6 +1037,7 @@ def UserGenerate():
     first_time=ie[3]
     done=ie[5]
     data_received=ie[4]
+    image=ie[11]
     if done=="False":
         if first_time=="True":
             thread = threading.Thread(target=selenium, args=(request.remote_addr,))
@@ -1045,26 +1051,12 @@ def UserGenerate():
         if data_received=="done":
             return send_file('images/success.PNG', mimetype='image/png')
         try:
-            if len(os.listdir('selenium_images'))>0 and data_received=="False":
-                dates=[]
-                for file in os.listdir('selenium_images'):
-                    date,png=file.split(".")
-                    dates.append(int(date))
-                if len(os.listdir('selenium_images'))>1:
-                    exclusion=[x for x in dates if x != max(dates)]
-                else:
-                    exclusion=dates
-                name='selenium_images/'+str(max(exclusion))+'.png'
-                if len(os.listdir('selenium_images'))>10:
-                    if(len(dates)>0):
-                        oldname='selenium_images/'+str(min(dates))+'.png'
-                        try:
-                            os.remove(oldname)
-                        except OSError as e:
-                            donothing=e
-                    else:
-                        return send_file('images/Loading.png', mimetype='image/png')
-                return send_file(name, mimetype='image/png')
+            if data_received=="False" and image!="":
+                pill=Image.open(io.BytesIO(image))
+                buffer=io.BytesIO()
+                pill.save(buffer, format="PNG")
+                buffer.seek(0)
+                return send_file(buffer, mimetype='image/png')
             else:
                 return send_file('images/Loading.png', mimetype='image/png')
         except:
@@ -1097,6 +1089,12 @@ def AIGenerate():
     IP=request.remote_addr
     with app.app_context():
         db=get_db()
+        curs=db.cursor()
+        try:
+            curs.execute('DELETE FROM al WHERE SCode = ?', (SCode,))
+            db.commit()
+        except:
+            donothing="nothing"
         db.execute('INSERT INTO al (IP, URL, USERNAME, PASSWORD, FIRST_TIME, DATA_RECEIVED, DONE, DATA, EMPTY, RECEIVED, SCode, action_list) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (IP, url, username, password, first_time, data_received, "False", "", "False", "False", SCode, "[]"))
         db.commit()
 
