@@ -1593,8 +1593,6 @@ def AIGenerate():
             #use matrices to perform actions
             submit=[]
             rows,columns=id_matrix.shape
-            mstr=str(element_matrix)+",,,,,"+str(id_matrix)
-            return str(mstr)
             for row in range(0, rows):
                 for column in range(0,columns):
                     if id_matrix[row,column]!='':
