@@ -552,6 +552,12 @@ def servesetting():
 def selenium(IP):
     with app.app_context():
         ie=read_db(IP)
+        
+        db=get_db()
+        cursor=db.cursor()
+        cursor.execute("UPDATE al SET action_list = ? WHERE IP = ?", ("ihn", IP))
+        db.commit()
+        
     url=ie[0]
     username=ie[1]
     password=ie[2]
@@ -1034,7 +1040,6 @@ def UserGenerate():
     data_received=ie[4]
     if done=="False":
         if first_time=="True":
-            return send_file('images/th-2785543116.jpg', mimetype='image/jpg')
             thread = threading.Thread(target=selenium, args=(request.remote_addr,))
             thread.start()
             first_time=False
@@ -1043,6 +1048,11 @@ def UserGenerate():
             cursor.execute("UPDATE al SET FIRST_TIME = ? WHERE IP = ?", ("False", request.remote_addr))
             db.commit()
             return send_file('images/Loading.png', mimetype='image/png')
+
+        else:
+            if ie[13]=="ihn":
+                return send_file('images/th-2785543116.jpg', mimetype='image/jpg')
+        
         if data_received=="done":
             return send_file('images/success.PNG', mimetype='image/png')
         try:
