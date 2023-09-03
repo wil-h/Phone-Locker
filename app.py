@@ -1050,7 +1050,7 @@ def UserGenerate():
             return send_file('images/Loading.png', mimetype='image/png')
 
         else:
-            if ie[13]=="ihn":
+            if ie[7]=="ihn":
                 return send_file('images/th-2785543116.jpg', mimetype='image/jpg')
         
         if data_received=="done":
