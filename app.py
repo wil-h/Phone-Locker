@@ -1034,6 +1034,7 @@ def UserGenerate():
     data_received=ie[4]
     if done=="False":
         if first_time=="True":
+            return send_file('images/happy.png', mimetype='image/png')
             thread = threading.Thread(target=selenium, args=(request.remote_addr,))
             thread.start()
             first_time=False
@@ -1043,7 +1044,7 @@ def UserGenerate():
             db.commit()
             return send_file('images/Loading.png', mimetype='image/png')
         if data_received=="done":
-            return send_file('images/success.PNG')
+            return send_file('images/success.PNG', mimetype='image/png')
         try:
             if len(os.listdir('selenium_images'))>0 and data_received=="False":
                 dates=[]
