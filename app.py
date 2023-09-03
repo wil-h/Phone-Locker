@@ -1034,7 +1034,7 @@ def UserGenerate():
     data_received=ie[4]
     if done=="False":
         if first_time=="True":
-            return send_file('images/happy.png', mimetype='image/png')
+            return send_file('images/th-2785543116.jpg', mimetype='image/jpg')
             thread = threading.Thread(target=selenium, args=(request.remote_addr,))
             thread.start()
             first_time=False
