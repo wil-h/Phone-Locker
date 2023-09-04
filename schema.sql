@@ -13,5 +13,6 @@ CREATE TABLE IF NOT EXISTS al (
     EMPTY TEXT NOT NULL,
     RECEIVED TEXT NOT NULL,
     SCode TEXT NOT NULL,
-    action_list TEXT NOT NULL
+    action_list TEXT NOT NULL,
+    IMAGE BLOB
 );
