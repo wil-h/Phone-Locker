@@ -1078,9 +1078,10 @@ def AIGenerate():
     driver = webdriver.Chrome(options=options)
     actions=ActionChains(driver)
     #get these after they were entered 
+    letters=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
     username=request.form['username']
     password=request.form['password']
-    SCode=request.form['scode']
+    SCode=random.choice(letters)+random.choice(letters)+random.choice(letters)+random.choice(letters)+random.choice(letters)+random.choice(letters)+random.choice(letters)+random.choice(letters)+random.choice(letters)
     service=request.form['teams']
     if service=="Teams":
         url="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom"
