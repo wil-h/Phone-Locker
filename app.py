@@ -500,10 +500,11 @@ def api_data():
     for dic in alist:
         if dic["SCode"]==SCode:
             retun=dic["action_list"]
-            curs=db.cursor()
-            curs.execute('DELETE FROM al WHERE SCode = ?', (SCode,))
-            db.commit()
-            return jsonify(retun)
+            if retun!="[]":
+                curs=db.cursor()
+                curs.execute('DELETE FROM al WHERE SCode = ?', (SCode,))
+                db.commit()
+                return jsonify(retun)
     return jsonify("none")
 @app.route('/')
 def home():
