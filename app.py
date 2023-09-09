@@ -494,21 +494,21 @@ def api_data():
     db=get_db()
     try:
         ie=read_db(request.remote_addr)
+        SCode=ie[6]
+        cursor = db.execute('SELECT * FROM al')
+        al=cursor.fetchall()
+        alist=[dict(row) for row in al]
+        for dic in alist:
+            if dic["SCode"]==SCode:
+                retun=dic["action_list"]
+                if retun!="[]":
+                    curs=db.cursor()
+                    curs.execute('DELETE FROM al WHERE SCode = ?', (SCode,))
+                    db.commit()
+                    return jsonify(retun)
+        return jsonify("none")
     except:
         return jsonify("none")
-    SCode=ie[6]
-    cursor = db.execute('SELECT * FROM al')
-    al=cursor.fetchall()
-    alist=[dict(row) for row in al]
-    for dic in alist:
-        if dic["SCode"]==SCode:
-            retun=dic["action_list"]
-            if retun!="[]":
-                curs=db.cursor()
-                curs.execute('DELETE FROM al WHERE SCode = ?', (SCode,))
-                db.commit()
-                return jsonify(retun)
-    return jsonify("none")
 @app.route('/')
 def home():
     return(render_template('usernamepassword.html'))
