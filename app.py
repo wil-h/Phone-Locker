@@ -492,7 +492,10 @@ def getstatus():
 @app.route('/api/setup', methods=['GET'])
 def api_data():
     db=get_db()
-    ie=read_db(request.remote_addr)
+    try:
+        ie=read_db(request.remote_addr)
+    except:
+        return jsonify("none")
     SCode=ie[6]
     cursor = db.execute('SELECT * FROM al')
     al=cursor.fetchall()
