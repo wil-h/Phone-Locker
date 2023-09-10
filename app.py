@@ -1037,36 +1037,39 @@ def recieve():
     return render_template('usergenerate.html')
 @app.route('/usergenerate')
 def UserGenerate():
-    ie=read_db(request.remote_addr)
-    first_time=ie[3]
-    done=ie[5]
-    data_received=ie[4]
-    image=ie[11]
-    if done=="False":
-        if first_time=="True":
-            thread = threading.Thread(target=selenium, args=(request.remote_addr,))
-            thread.start()
-            first_time=False
-            db=get_db()
-            cursor=db.cursor()
-            cursor.execute("UPDATE al SET FIRST_TIME = ? WHERE IP = ?", ("False", request.remote_addr))
-            db.commit()
-            return send_file('images/Loading.png', mimetype='image/png')
-        if data_received=="done":
-            return send_file('images/success.PNG', mimetype='image/png')
-        try:
-            if data_received=="False" and image!="":
-                pill=Image.open(io.BytesIO(image))
-                buffer=io.BytesIO()
-                pill.save(buffer, format="PNG")
-                buffer.seek(0)
-                return send_file(buffer, mimetype='image/png')
-            else:
+    try:
+        ie=read_db(request.remote_addr)
+        first_time=ie[3]
+        done=ie[5]
+        data_received=ie[4]
+        image=ie[11]
+        if done=="False":
+            if first_time=="True":
+                thread = threading.Thread(target=selenium, args=(request.remote_addr,))
+                thread.start()
+                first_time=False
+                db=get_db()
+                cursor=db.cursor()
+                cursor.execute("UPDATE al SET FIRST_TIME = ? WHERE IP = ?", ("False", request.remote_addr))
+                db.commit()
                 return send_file('images/Loading.png', mimetype='image/png')
-        except:
-            return send_file('images/Loading.png', mimetype='image/png')
-    else:
-       return send_file('images/success.PNG')
+            if data_received=="done":
+                return send_file('images/success.PNG', mimetype='image/png')
+            try:
+                if data_received=="False" and image!="":
+                    pill=Image.open(io.BytesIO(image))
+                    buffer=io.BytesIO()
+                    pill.save(buffer, format="PNG")
+                    buffer.seek(0)
+                    return send_file(buffer, mimetype='image/png')
+                else:
+                    return send_file('images/Loading.png', mimetype='image/png')
+            except:
+                return send_file('images/Loading.png', mimetype='image/png')
+        else:
+           return send_file('images/success.PNG')
+    except:
+        return send_file('images/Loading.png', mimetype='image/png')
 @app.route('/login-process', methods=['POST'])
 def AIGenerate():
     #this method will open an actual web browser and preform operations on its own like parsing and clicks and scrolls.
