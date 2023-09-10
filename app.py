@@ -75,228 +75,67 @@ def close_db(error):
 
 @app.route('/api/status', methods=['POST'])
 def getstatus():
-    actionlist=request.data.decode('utf-8')
-    actionlist=eval(actionlist)
-    uname=actionlist[0]
-    pword=actionlist[1]
-    ur_l=actionlist[2]
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("enable-automation")
-    options.add_argument("--disable-infobars")
-    options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=options)
-    driver.get(ur_l)
-    idlist=[]
-    noidpage=False
-    for id in actionlist:
-        if id!=uname and id!=pword and id!=ur_l and id!='username' and id!='password' and id!='submit' and id!='return' and id!='wait':
-            idlist.append(id)
-    while driver.current_url==ur_l:
-        time.sleep(0.1)
-    for action in range(3,len(actionlist)-1):
-        WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.TAG_NAME, 'body'))) 
-        if actionlist[action]!=uname and actionlist[action]!=pword and actionlist[action]!=ur_l:
-            #ignore everything until the next page when a page has an element with no ID
-            if not noidpage:
-                if actionlist[action]=='username':
-                    id=actionlist[action+1]
-                    WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.ID, id))) 
-                    element=driver.find_element(By.ID, id)
-                    element.send_keys(uname)
-                    idlist.remove(id)
-                if actionlist[action]=='password':
-                    id=actionlist[action+1]
-                    WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.ID, id))) 
-                    element=driver.find_element(By.ID, id)
-                    element.send_keys(pword)
-                    idlist.remove(id)
-                if actionlist[action]=='submit':
-                    id=actionlist[action+1]
-                    WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.ID, id))) 
-                    element=driver.find_element(By.ID, id)
-                    element.click()
-                    idlist.remove(id)
-                if actionlist[action]=='return':
-                    driver.switch_to.active_element.send_keys(Keys.RETURN)
-                if actionlist[action]=='noid':
-                    noidpage=True
-                    oldurl=driver.current_url
-                    coordinates=eval(actionlist[action+1])
-                    while driver.current_url==oldurl:
-                        yvalues = []
-                        xvalues=[]
-                        ids=[]
-                        submit=[]
-                        for g in range(0,len(coordinates)):
-                            if coordinates[g]=='username' or coordinates[g]=='password' or coordinates[g]=='submit' or coordinates[g]=='none':
-                                ids.append(coordinates[g])
-                                xvalues.append(coordinates[(g+1)])
-                                yvalues.append(coordinates[(g+2)])
-                        y1=[]
-                        y2=[]
-                        y3=[]
-                        y4=[]
-                        y5=[]
-                        accounted=[]
-                        rep=1
-                        done=False
-                        if len(coordinates)>0:
-                            while(not done):
-                                if rep==1:
-                                    y1.append(yvalues.index(min(yvalues)))
-                                if rep==2:
-                                    y2.append(yvalues.index(min(yvalues)))
-                                if rep==3:
-                                    y3.append(yvalues.index(min(yvalues)))
-                                if rep==4:
-                                    y4.append(yvalues.index(min(yvalues)))
-                                if rep==5:
-                                    y5.append(yvalues.index(min(yvalues)))
-                                accounted.append(yvalues.index(min(yvalues)))
-                                for j in range(0,len(ids)):
-                                    if (yvalues[j]-25)<min(yvalues) and j!=int(yvalues.index(min(yvalues))):
-                                        if j not in y1 and j not in y2 and j not in y3 and j not in y4 and j not in y5:
-                                            if rep==1:
-                                                y1.append(j)
-                                            if rep==2:
-                                                y2.append(j)
-                                            if rep==3:
-                                                y3.append(j)
-                                            if rep==4:
-                                                y4.append(j)
-                                            if rep==5:
-                                                y5.append(j)
-                                            accounted.append(j)
-                                            yvalues[j]=max(yvalues)+10
-                                if len(accounted)==len(yvalues):
-                                    done=True 
-                                rep=rep+1
-                                yvalues[yvalues.index(min(yvalues))]=max(yvalues)+10
-                            x1=[]
-                            x2=[]
-                            x3=[]
-                            x4=[]
-                            x5=[]
-                            accounted=[]
-                            rep=1
-                            done=False
-                            while(not done):
-                                if rep==1:
-                                    x1.append(xvalues.index(min(xvalues)))
-                                if rep==2:
-                                    x2.append(xvalues.index(min(xvalues)))
-                                if rep==3:
-                                    x3.append(xvalues.index(min(xvalues)))
-                                if rep==4:
-                                    x4.append(xvalues.index(min(xvalues)))
-                                if rep==5:
-                                    x5.append(xvalues.index(min(xvalues)))
-                                accounted.append(xvalues.index(min(xvalues)))
-                                for j in range(0,len(ids)):
-                                    if (xvalues[j]-25)<min(xvalues) and xvalues[j]!=min(xvalues):
-                                        if j not in x1 and j not in x2 and j not in x3 and j not in x4 and j not in x5:
-                                            if rep==1:
-                                                x1.append(j)
-                                            if rep==2:
-                                                x2.append(j)
-                                            if rep==3:
-                                                x3.append(j)
-                                            if rep==4:
-                                                x4.append(j)
-                                            if rep==5:
-                                                x5.append(j)
-                                            accounted.append(j)
-                                            xvalues[j]=max(xvalues)+10
-                                if len(accounted)==len(xvalues):
-                                    done=True 
-                                rep=rep+1
-                                xvalues[xvalues.index(min(xvalues))]=max(xvalues)+10
-                            if y2==[]:
-                                y=1
-                            elif y3==[]:
-                                y=2
-                            elif y4==[]:
-                                y=3
-                            elif y5==[]:
-                                y=4
-                            elif y5!=[]:
-                                y=5
-                            if x2==[]:
-                                x=1
-                            elif x3==[]:
-                                x=2
-                            elif x4==[]:
-                                x=3
-                            elif x5==[]:
-                                x=4
-                            elif x5!=[]:
-                                x=5
-                            element_matrix = np.empty((y, x), dtype=np.dtype('U100'))
-                            for o in range(0,len(ids)):
-                                if o in x1:
-                                    xcoord=0
-                                if o in x2:
-                                    xcoord=1
-                                if o in x3:
-                                    xcoord=2
-                                if o in x4:
-                                    xcoord=3
-                                if o in x5:
-                                    xcoord=4
-                                if o in y1:
-                                    ycoord=0
-                                if o in y2:
-                                    ycoord=1
-                                if o in y3:
-                                    ycoord=2
-                                if o in y4:
-                                    ycoord=3  
-                                if o in y5:
-                                    ycoord=4
-                                element_matrix[ycoord,xcoord]=ids[o]
-                            letters=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-                            elements = driver.find_elements(By.XPATH,"//*")
-                            ids = []
-                            yvalues=[]
+    try:
+        actionlist=request.data.decode('utf-8')
+        actionlist=eval(actionlist)
+        uname=actionlist[0]
+        pword=actionlist[1]
+        ur_l=actionlist[2]
+        options = Options()
+        options.add_argument("--headless")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("enable-automation")
+        options.add_argument("--disable-infobars")
+        options.add_argument("--disable-dev-shm-usage")
+        driver = webdriver.Chrome(options=options)
+        driver.get(ur_l)
+        idlist=[]
+        noidpage=False
+        for id in actionlist:
+            if id!=uname and id!=pword and id!=ur_l and id!='username' and id!='password' and id!='submit' and id!='return' and id!='wait':
+                idlist.append(id)
+        while driver.current_url==ur_l:
+            time.sleep(0.1)
+        for action in range(3,len(actionlist)-1):
+            WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.TAG_NAME, 'body'))) 
+            if actionlist[action]!=uname and actionlist[action]!=pword and actionlist[action]!=ur_l:
+                #ignore everything until the next page when a page has an element with no ID
+                if not noidpage:
+                    if actionlist[action]=='username':
+                        id=actionlist[action+1]
+                        WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.ID, id))) 
+                        element=driver.find_element(By.ID, id)
+                        element.send_keys(uname)
+                        idlist.remove(id)
+                    if actionlist[action]=='password':
+                        id=actionlist[action+1]
+                        WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.ID, id))) 
+                        element=driver.find_element(By.ID, id)
+                        element.send_keys(pword)
+                        idlist.remove(id)
+                    if actionlist[action]=='submit':
+                        id=actionlist[action+1]
+                        WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.ID, id))) 
+                        element=driver.find_element(By.ID, id)
+                        element.click()
+                        idlist.remove(id)
+                    if actionlist[action]=='return':
+                        driver.switch_to.active_element.send_keys(Keys.RETURN)
+                    if actionlist[action]=='noid':
+                        noidpage=True
+                        oldurl=driver.current_url
+                        coordinates=eval(actionlist[action+1])
+                        while driver.current_url==oldurl:
+                            yvalues = []
                             xvalues=[]
-                            for element in elements:
-                                element_id = element.get_attribute("id")
-                                tag = element.tag_name
-                                location = element.location
-                                size = element.size
-                                if (tag!="" and tag != "a" and tag != "abbr" and tag != "address" and tag != "article" and tag != "aside" and
-                                    tag != "audio" and tag != "b" and tag != "blockquote" and tag != "body" and tag != "canvas" and
-                                    tag != "caption" and tag != "cite" and tag != "code" and tag != "col" and tag != "colgroup" and
-                                    tag != "datalist" and tag != "dd" and tag != "del" and tag != "details" and tag != "dfn" and
-                                    tag != "dialog" and tag != "div" and tag != "dl" and tag != "dt" and tag != "em" and tag != "embed" and
-                                    tag != "fieldset" and tag != "figcaption" and tag != "figure" and tag != "footer" and tag != "form" and
-                                    tag != "head" and tag != "header" and tag != "html" and tag != "i" and tag != "iframe" and tag != "img" and
-                                    tag != "ins" and tag != "kbd" and tag != "label" and tag != "legend" and tag != "link" and tag != "main" and
-                                    tag != "map" and tag != "mark" and tag != "menu" and tag != "meta" and tag != "meter" and tag != "nav" and
-                                    tag != "noscript" and tag != "object" and tag != "ol" and tag != "optgroup" and tag != "option" and
-                                    tag != "output" and tag != "p" and tag != "param" and tag != "pre" and tag != "progress" and tag != "q" and
-                                    tag != "rp" and tag != "rt" and tag != "ruby" and tag != "s" and tag != "samp" and tag != "script" and
-                                    tag != "section" and tag != "select" and tag != "small" and tag != "source" and tag != "span" and
-                                    tag != "strong" and tag != "style" and tag != "sub" and tag != "summary" and tag != "sup" and
-                                    tag != "svg" and tag != "table" and tag != "tbody" and tag != "template" and tag != "time" and
-                                    tag != "title" and tag != "tr" and tag != "track" and tag != "u" and tag != "ul" and tag != "var" and
-                                    tag != "video" and tag != "wbr" and tag!="h1" and tag!="h2" and tag!="h3" and tag!="h4" and tag!="h5" 
-                                    and tag!="h6"):
-                                    if(size["height"]>0 and size["width"]>0 and "hidden" not in element.get_attribute("style").lower() and
-                                        "display: none" not in element.get_attribute("style").lower() and
-                                        "visibility: hidden" not in element.get_attribute("style").lower() and
-                                        element.get_attribute("aria-hidden") != "true" and
-                                        element.get_attribute("hidden") is None and
-                                        element.is_displayed()):
-                                        if element_id=="":
-                                            element_id=random.choice(letters)+random.choice(letters)+random.choice(letters)+random.choice(letters)
-                                            driver.execute_script("arguments[0].setAttribute('id', arguments[1]);", element, element_id)
-                                        ids.append(element_id)
-                                        xvalues.append(location["x"])
-                                        yvalues.append(location["y"])
+                            ids=[]
+                            submit=[]
+                            for g in range(0,len(coordinates)):
+                                if coordinates[g]=='username' or coordinates[g]=='password' or coordinates[g]=='submit' or coordinates[g]=='none':
+                                    ids.append(coordinates[g])
+                                    xvalues.append(coordinates[(g+1)])
+                                    yvalues.append(coordinates[(g+2)])
                             y1=[]
                             y2=[]
                             y3=[]
@@ -305,189 +144,352 @@ def getstatus():
                             accounted=[]
                             rep=1
                             done=False
-                            while(not done):
-                                if rep==1:
-                                    y1.append(yvalues.index(min(yvalues)))
-                                if rep==2:
-                                    y2.append(yvalues.index(min(yvalues)))
-                                if rep==3:
-                                    y3.append(yvalues.index(min(yvalues)))
-                                if rep==4:
-                                    y4.append(yvalues.index(min(yvalues)))
-                                if rep==5:
-                                    y5.append(yvalues.index(min(yvalues)))
-                                accounted.append(yvalues.index(min(yvalues)))
-                                for j in range(0,len(ids)):
-                                    if (yvalues[j]-25)<min(yvalues) and j!=int(yvalues.index(min(yvalues))):
-                                        if j not in y1 and j not in y2 and j not in y3 and j not in y4 and j not in y5:
-                                            if rep==1:
-                                                y1.append(j)
-                                            if rep==2:
-                                                y2.append(j)
-                                            if rep==3:
-                                                y3.append(j)
-                                            if rep==4:
-                                                y4.append(j)
-                                            if rep==5:
-                                                y5.append(j)
-                                            accounted.append(j)
-                                            yvalues[j]=max(yvalues)+10
-                                if len(accounted)==len(yvalues):
-                                    done=True 
-                                rep=rep+1
-                                yvalues[yvalues.index(min(yvalues))]=max(yvalues)+10
-                            x1=[]
-                            x2=[]
-                            x3=[]
-                            x4=[]
-                            x5=[]
-                            accounted=[]
-                            rep=1
-                            done=False
-                            while(not done):
-                                if rep==1:
-                                    x1.append(xvalues.index(min(xvalues)))
-                                if rep==2:
-                                    x2.append(xvalues.index(min(xvalues)))
-                                if rep==3:
-                                    x3.append(xvalues.index(min(xvalues)))
-                                if rep==4:
-                                    x4.append(xvalues.index(min(xvalues)))
-                                if rep==5:
-                                    x5.append(xvalues.index(min(xvalues)))
-                                accounted.append(xvalues.index(min(xvalues)))
-                                for j in range(0,len(ids)):
-                                    if (xvalues[j]-40)<min(xvalues) and j!=int(xvalues.index(min(xvalues))):
-                                        if j not in x1 and j not in x2 and j not in x3 and j not in x4 and j not in x5:
-                                            if rep==1:
-                                                x1.append(j)
-                                            if rep==2:
-                                                x2.append(j)
-                                            if rep==3:
-                                                x3.append(j)
-                                            if rep==4:
-                                                x4.append(j)
-                                            if rep==5:
-                                                x5.append(j)
-                                            accounted.append(j)
-                                            xvalues[j]=max(xvalues)+10
-                                if len(accounted)==len(xvalues):
-                                    done=True 
-                                rep=rep+1
-                                xvalues[xvalues.index(min(xvalues))]=max(xvalues)+10
-                            if y2==[]:
-                                y=1
-                            elif y3==[]:
-                                y=2
-                            elif y4==[]:
-                                y=3
-                            elif y5==[]:
-                                y=4
-                            elif y5!=[]:
-                                y=5
-                            if x2==[]:
-                                x=1
-                            elif x3==[]:
-                                x=2
-                            elif x4==[]:
-                                x=3
-                            elif x5==[]:
-                                x=4
-                            elif x5!=[]:
-                                x=5
-                            id_matrix = np.empty((y, x), dtype=np.dtype('U100'))
-                            for o in range(0,len(ids)):
-                                if o in x1:
-                                    xcoord=0
-                                if o in x2:
-                                    xcoord=1
-                                if o in x3:
-                                    xcoord=2
-                                if o in x4:
-                                    xcoord=3
-                                if o in x5:
-                                    xcoord=4
-                                if o in y1:
-                                    ycoord=0
-                                if o in y2:
-                                    ycoord=1
-                                if o in y3:
-                                    ycoord=2
-                                if o in y4:
-                                    ycoord=3
-                                if o in y5:
-                                    ycoord=4
-                                id_matrix[ycoord,xcoord]=ids[o]
-                            submit=[]
-                            irows,icolumns=id_matrix.shape
-                            erows,ecolumns=element_matrix.shape
-                            if irows>erows:
-                                rows=erows
-                            if irows<erows or irows==erows:
-                                rows=irows
-                            if icolumns>ecolumns:
-                                columns=ecolumns
-                            if icolumns<ecolumns or icolumns==ecolumns:
-                                columns=icolumns
-                            for row in range(0, rows):
-                                for column in range(0,columns):
-                                    if id_matrix[row,column]!='':
-                                        if element_matrix[row,column]=='submit':
-                                            submit.append(row)
-                                            submit.append(column)
-                                        else:
-                                            if element_matrix[row,column]=='username':
-                                                element=driver.find_element(By.ID,id_matrix[row,column])
-                                                for j in range(0,100):
-                                                    element.send_keys(Keys.BACKSPACE)
-                                                element.send_keys(uname)
-                                            if element_matrix[row,column]=='password':
-                                                element=driver.find_element(By.ID,id_matrix[row,column])
-                                                for j in range(0,100):
-                                                    element.send_keys(Keys.BACKSPACE)
-                                                element.send_keys(pword)
-                        if len(submit)>0:
-                            driver.find_element(By.ID,id_matrix[submit[0],submit[1]]).click()
-                        else:
-                            driver.switch_to.active_element.send_keys(Keys.RETURN)
-                        WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
-                        time.sleep(1)
-            if actionlist[action]=='wait':
-                noidpage=False
-                WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.TAG_NAME, 'body'))) 
-                hasid=False
-                for v in range(action, len(actionlist)-1):
-                    if actionlist[v]=='wait':
-                        hasid=False
-                        break
-                    if actionlist[v]=='username' or actionlist[v]=='password' or actionlist[v]=='submit':
-                        hasid=True
-                        break
-                if hasid:
-                    try:
-                        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, idlist[0])))
-                    except:
+                            if len(coordinates)>0:
+                                while(not done):
+                                    if rep==1:
+                                        y1.append(yvalues.index(min(yvalues)))
+                                    if rep==2:
+                                        y2.append(yvalues.index(min(yvalues)))
+                                    if rep==3:
+                                        y3.append(yvalues.index(min(yvalues)))
+                                    if rep==4:
+                                        y4.append(yvalues.index(min(yvalues)))
+                                    if rep==5:
+                                        y5.append(yvalues.index(min(yvalues)))
+                                    accounted.append(yvalues.index(min(yvalues)))
+                                    for j in range(0,len(ids)):
+                                        if (yvalues[j]-25)<min(yvalues) and j!=int(yvalues.index(min(yvalues))):
+                                            if j not in y1 and j not in y2 and j not in y3 and j not in y4 and j not in y5:
+                                                if rep==1:
+                                                    y1.append(j)
+                                                if rep==2:
+                                                    y2.append(j)
+                                                if rep==3:
+                                                    y3.append(j)
+                                                if rep==4:
+                                                    y4.append(j)
+                                                if rep==5:
+                                                    y5.append(j)
+                                                accounted.append(j)
+                                                yvalues[j]=max(yvalues)+10
+                                    if len(accounted)==len(yvalues):
+                                        done=True 
+                                    rep=rep+1
+                                    yvalues[yvalues.index(min(yvalues))]=max(yvalues)+10
+                                x1=[]
+                                x2=[]
+                                x3=[]
+                                x4=[]
+                                x5=[]
+                                accounted=[]
+                                rep=1
+                                done=False
+                                while(not done):
+                                    if rep==1:
+                                        x1.append(xvalues.index(min(xvalues)))
+                                    if rep==2:
+                                        x2.append(xvalues.index(min(xvalues)))
+                                    if rep==3:
+                                        x3.append(xvalues.index(min(xvalues)))
+                                    if rep==4:
+                                        x4.append(xvalues.index(min(xvalues)))
+                                    if rep==5:
+                                        x5.append(xvalues.index(min(xvalues)))
+                                    accounted.append(xvalues.index(min(xvalues)))
+                                    for j in range(0,len(ids)):
+                                        if (xvalues[j]-25)<min(xvalues) and xvalues[j]!=min(xvalues):
+                                            if j not in x1 and j not in x2 and j not in x3 and j not in x4 and j not in x5:
+                                                if rep==1:
+                                                    x1.append(j)
+                                                if rep==2:
+                                                    x2.append(j)
+                                                if rep==3:
+                                                    x3.append(j)
+                                                if rep==4:
+                                                    x4.append(j)
+                                                if rep==5:
+                                                    x5.append(j)
+                                                accounted.append(j)
+                                                xvalues[j]=max(xvalues)+10
+                                    if len(accounted)==len(xvalues):
+                                        done=True 
+                                    rep=rep+1
+                                    xvalues[xvalues.index(min(xvalues))]=max(xvalues)+10
+                                if y2==[]:
+                                    y=1
+                                elif y3==[]:
+                                    y=2
+                                elif y4==[]:
+                                    y=3
+                                elif y5==[]:
+                                    y=4
+                                elif y5!=[]:
+                                    y=5
+                                if x2==[]:
+                                    x=1
+                                elif x3==[]:
+                                    x=2
+                                elif x4==[]:
+                                    x=3
+                                elif x5==[]:
+                                    x=4
+                                elif x5!=[]:
+                                    x=5
+                                element_matrix = np.empty((y, x), dtype=np.dtype('U100'))
+                                for o in range(0,len(ids)):
+                                    if o in x1:
+                                        xcoord=0
+                                    if o in x2:
+                                        xcoord=1
+                                    if o in x3:
+                                        xcoord=2
+                                    if o in x4:
+                                        xcoord=3
+                                    if o in x5:
+                                        xcoord=4
+                                    if o in y1:
+                                        ycoord=0
+                                    if o in y2:
+                                        ycoord=1
+                                    if o in y3:
+                                        ycoord=2
+                                    if o in y4:
+                                        ycoord=3  
+                                    if o in y5:
+                                        ycoord=4
+                                    element_matrix[ycoord,xcoord]=ids[o]
+                                letters=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+                                elements = driver.find_elements(By.XPATH,"//*")
+                                ids = []
+                                yvalues=[]
+                                xvalues=[]
+                                for element in elements:
+                                    element_id = element.get_attribute("id")
+                                    tag = element.tag_name
+                                    location = element.location
+                                    size = element.size
+                                    if (tag!="" and tag != "a" and tag != "abbr" and tag != "address" and tag != "article" and tag != "aside" and
+                                        tag != "audio" and tag != "b" and tag != "blockquote" and tag != "body" and tag != "canvas" and
+                                        tag != "caption" and tag != "cite" and tag != "code" and tag != "col" and tag != "colgroup" and
+                                        tag != "datalist" and tag != "dd" and tag != "del" and tag != "details" and tag != "dfn" and
+                                        tag != "dialog" and tag != "div" and tag != "dl" and tag != "dt" and tag != "em" and tag != "embed" and
+                                        tag != "fieldset" and tag != "figcaption" and tag != "figure" and tag != "footer" and tag != "form" and
+                                        tag != "head" and tag != "header" and tag != "html" and tag != "i" and tag != "iframe" and tag != "img" and
+                                        tag != "ins" and tag != "kbd" and tag != "label" and tag != "legend" and tag != "link" and tag != "main" and
+                                        tag != "map" and tag != "mark" and tag != "menu" and tag != "meta" and tag != "meter" and tag != "nav" and
+                                        tag != "noscript" and tag != "object" and tag != "ol" and tag != "optgroup" and tag != "option" and
+                                        tag != "output" and tag != "p" and tag != "param" and tag != "pre" and tag != "progress" and tag != "q" and
+                                        tag != "rp" and tag != "rt" and tag != "ruby" and tag != "s" and tag != "samp" and tag != "script" and
+                                        tag != "section" and tag != "select" and tag != "small" and tag != "source" and tag != "span" and
+                                        tag != "strong" and tag != "style" and tag != "sub" and tag != "summary" and tag != "sup" and
+                                        tag != "svg" and tag != "table" and tag != "tbody" and tag != "template" and tag != "time" and
+                                        tag != "title" and tag != "tr" and tag != "track" and tag != "u" and tag != "ul" and tag != "var" and
+                                        tag != "video" and tag != "wbr" and tag!="h1" and tag!="h2" and tag!="h3" and tag!="h4" and tag!="h5" 
+                                        and tag!="h6"):
+                                        if(size["height"]>0 and size["width"]>0 and "hidden" not in element.get_attribute("style").lower() and
+                                            "display: none" not in element.get_attribute("style").lower() and
+                                            "visibility: hidden" not in element.get_attribute("style").lower() and
+                                            element.get_attribute("aria-hidden") != "true" and
+                                            element.get_attribute("hidden") is None and
+                                            element.is_displayed()):
+                                            if element_id=="":
+                                                element_id=random.choice(letters)+random.choice(letters)+random.choice(letters)+random.choice(letters)
+                                                driver.execute_script("arguments[0].setAttribute('id', arguments[1]);", element, element_id)
+                                            ids.append(element_id)
+                                            xvalues.append(location["x"])
+                                            yvalues.append(location["y"])
+                                y1=[]
+                                y2=[]
+                                y3=[]
+                                y4=[]
+                                y5=[]
+                                accounted=[]
+                                rep=1
+                                done=False
+                                while(not done):
+                                    if rep==1:
+                                        y1.append(yvalues.index(min(yvalues)))
+                                    if rep==2:
+                                        y2.append(yvalues.index(min(yvalues)))
+                                    if rep==3:
+                                        y3.append(yvalues.index(min(yvalues)))
+                                    if rep==4:
+                                        y4.append(yvalues.index(min(yvalues)))
+                                    if rep==5:
+                                        y5.append(yvalues.index(min(yvalues)))
+                                    accounted.append(yvalues.index(min(yvalues)))
+                                    for j in range(0,len(ids)):
+                                        if (yvalues[j]-25)<min(yvalues) and j!=int(yvalues.index(min(yvalues))):
+                                            if j not in y1 and j not in y2 and j not in y3 and j not in y4 and j not in y5:
+                                                if rep==1:
+                                                    y1.append(j)
+                                                if rep==2:
+                                                    y2.append(j)
+                                                if rep==3:
+                                                    y3.append(j)
+                                                if rep==4:
+                                                    y4.append(j)
+                                                if rep==5:
+                                                    y5.append(j)
+                                                accounted.append(j)
+                                                yvalues[j]=max(yvalues)+10
+                                    if len(accounted)==len(yvalues):
+                                        done=True 
+                                    rep=rep+1
+                                    yvalues[yvalues.index(min(yvalues))]=max(yvalues)+10
+                                x1=[]
+                                x2=[]
+                                x3=[]
+                                x4=[]
+                                x5=[]
+                                accounted=[]
+                                rep=1
+                                done=False
+                                while(not done):
+                                    if rep==1:
+                                        x1.append(xvalues.index(min(xvalues)))
+                                    if rep==2:
+                                        x2.append(xvalues.index(min(xvalues)))
+                                    if rep==3:
+                                        x3.append(xvalues.index(min(xvalues)))
+                                    if rep==4:
+                                        x4.append(xvalues.index(min(xvalues)))
+                                    if rep==5:
+                                        x5.append(xvalues.index(min(xvalues)))
+                                    accounted.append(xvalues.index(min(xvalues)))
+                                    for j in range(0,len(ids)):
+                                        if (xvalues[j]-40)<min(xvalues) and j!=int(xvalues.index(min(xvalues))):
+                                            if j not in x1 and j not in x2 and j not in x3 and j not in x4 and j not in x5:
+                                                if rep==1:
+                                                    x1.append(j)
+                                                if rep==2:
+                                                    x2.append(j)
+                                                if rep==3:
+                                                    x3.append(j)
+                                                if rep==4:
+                                                    x4.append(j)
+                                                if rep==5:
+                                                    x5.append(j)
+                                                accounted.append(j)
+                                                xvalues[j]=max(xvalues)+10
+                                    if len(accounted)==len(xvalues):
+                                        done=True 
+                                    rep=rep+1
+                                    xvalues[xvalues.index(min(xvalues))]=max(xvalues)+10
+                                if y2==[]:
+                                    y=1
+                                elif y3==[]:
+                                    y=2
+                                elif y4==[]:
+                                    y=3
+                                elif y5==[]:
+                                    y=4
+                                elif y5!=[]:
+                                    y=5
+                                if x2==[]:
+                                    x=1
+                                elif x3==[]:
+                                    x=2
+                                elif x4==[]:
+                                    x=3
+                                elif x5==[]:
+                                    x=4
+                                elif x5!=[]:
+                                    x=5
+                                id_matrix = np.empty((y, x), dtype=np.dtype('U100'))
+                                for o in range(0,len(ids)):
+                                    if o in x1:
+                                        xcoord=0
+                                    if o in x2:
+                                        xcoord=1
+                                    if o in x3:
+                                        xcoord=2
+                                    if o in x4:
+                                        xcoord=3
+                                    if o in x5:
+                                        xcoord=4
+                                    if o in y1:
+                                        ycoord=0
+                                    if o in y2:
+                                        ycoord=1
+                                    if o in y3:
+                                        ycoord=2
+                                    if o in y4:
+                                        ycoord=3
+                                    if o in y5:
+                                        ycoord=4
+                                    id_matrix[ycoord,xcoord]=ids[o]
+                                submit=[]
+                                irows,icolumns=id_matrix.shape
+                                erows,ecolumns=element_matrix.shape
+                                if irows>erows:
+                                    rows=erows
+                                if irows<erows or irows==erows:
+                                    rows=irows
+                                if icolumns>ecolumns:
+                                    columns=ecolumns
+                                if icolumns<ecolumns or icolumns==ecolumns:
+                                    columns=icolumns
+                                for row in range(0, rows):
+                                    for column in range(0,columns):
+                                        if id_matrix[row,column]!='':
+                                            if element_matrix[row,column]=='submit':
+                                                submit.append(row)
+                                                submit.append(column)
+                                            else:
+                                                if element_matrix[row,column]=='username':
+                                                    element=driver.find_element(By.ID,id_matrix[row,column])
+                                                    for j in range(0,100):
+                                                        element.send_keys(Keys.BACKSPACE)
+                                                    element.send_keys(uname)
+                                                if element_matrix[row,column]=='password':
+                                                    element=driver.find_element(By.ID,id_matrix[row,column])
+                                                    for j in range(0,100):
+                                                        element.send_keys(Keys.BACKSPACE)
+                                                    element.send_keys(pword)
+                            if len(submit)>0:
+                                driver.find_element(By.ID,id_matrix[submit[0],submit[1]]).click()
+                            else:
+                                driver.switch_to.active_element.send_keys(Keys.RETURN)
+                            WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+                            time.sleep(1)
+                if actionlist[action]=='wait':
+                    noidpage=False
+                    WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.TAG_NAME, 'body'))) 
+                    hasid=False
+                    for v in range(action, len(actionlist)-1):
+                        if actionlist[v]=='wait':
+                            hasid=False
+                            break
+                        if actionlist[v]=='username' or actionlist[v]=='password' or actionlist[v]=='submit':
+                            hasid=True
+                            break
+                    if hasid:
+                        try:
+                            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, idlist[0])))
+                        except:
+                            time.sleep(5)
+                    else:
                         time.sleep(5)
-                else:
-                    time.sleep(5)
-    if driver.current_url==ur_l:
-        #check for upcoming assingments
-        if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
-            WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
-            driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
-            time.sleep(5)
-            days=[]
-            try:
-                days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
-            except:
+        if driver.current_url==ur_l:
+            #check for upcoming assingments
+            if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
+                WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
+                driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
+                time.sleep(5)
+                days=[]
+                try:
+                    days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
+                except:
+                    return("false")
+                for day in days:
+                    if day.text=="Today" or day.text=="Tomorrow":
+                        return("true")
                 return("false")
-            for day in days:
-                if day.text=="Today" or day.text=="Tomorrow":
-                    return("true")
+        else:
             return("false")
-    else:
-        return("false")
-
+    except Exception as e:
+        return(e)
     #TEST THIS ONCE TEACHERS START ASSIGNING STUFF FOR SCHOOL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 @app.route('/api/setup', methods=['GET'])
 def api_data():
