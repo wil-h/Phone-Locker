@@ -76,7 +76,6 @@ def close_db(error):
 @app.route('/api/status', methods=['POST'])
 def getstatus():
     actionlist=request.data.decode('utf-8')
-    return(actionlist)
     actionlist=eval(actionlist)
     uname=actionlist[0]
     pword=actionlist[1]
