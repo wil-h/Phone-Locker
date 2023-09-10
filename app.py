@@ -481,13 +481,13 @@ def getstatus():
                 try:
                     days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
                 except:
-                    return("false")
+                    return jsonify("false")
                 for day in days:
                     if day.text=="Today" or day.text=="Tomorrow":
-                        return("true")
-                return("false")
+                        return jsonify("true")
+                return jsonify("false")
         else:
-            return("false")
+            return jsonify("false")
     except Exception as e:
         return(e)
     #TEST THIS ONCE TEACHERS START ASSIGNING STUFF FOR SCHOOL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
