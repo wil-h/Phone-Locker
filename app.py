@@ -423,6 +423,7 @@ def recieve():
           #              time.sleep(0.1)
           #      cursor.execute("UPDATE al SET RECEIVED = ? WHERE IP = ?", ("False", request.remote_addr))
           #      db.commit()
+        print("success")
         return {'status': 'success'}
     except Exception as e:
         print(e)
