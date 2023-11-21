@@ -425,7 +425,7 @@ def recieve():
       #      db.commit()
         return {'status': 'success'}
     except Exception as e:
-        return {'status': e}
+        return e
 @app.route('/usergenerate')
 def UserGenerate():
     ie=read_db(request.remote_addr)
