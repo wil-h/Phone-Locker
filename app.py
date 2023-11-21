@@ -368,50 +368,49 @@ def selenium(IP):
 #all this is still good for new method, just transferring data between two functions that need editing
 @app.route('/receive', methods=['POST'])
 def recieve():
-    try:
-        datal=request.get_json().get("message")
-        if(read_db(request.remote_addr)[11]!=""):#image has loaded
-            data_received=True
-            db=get_db()
-            ie=read_db(request.remote_addr)
-            data=eval(read_db(request.remote_addr)[12])
-            data.append(str(datal))
-            #could restructure to put all received into a queue and just wait here to send the next thing using while eval(read[8])!=[]: time.sleep(0.1), then send the next thing and remove it from the queue, this should also improve framerate 
-            cursor=db.cursor()
-            done=False
-            while not done:
-                try:
-                    cursor.execute("UPDATE al SET QUEUE = ? WHERE IP = ?", (str(data), request.remote_addr))
-                    db.commit()
-                    done=True
-                except:
-                    nothing="nothing"
-            while(len(eval(read_db(request.remote_addr)[12]))>0):
-                if(read_db(request.remote_addr)[8]=="[]"):
-                    done=False
-                    while not done:
-                        try:
-                            cursor.execute("UPDATE al SET DATA = ? WHERE IP = ?", (str("["+str('"'+eval(read_db(request.remote_addr)[12])[0]+'"')+"]"), request.remote_addr))
-                            db.commit()
-                            done=True
-                        except:
-                            nothing="nothing"
-                    done=False
-                    while not done:
-                        try:
-                            cursor.execute("UPDATE al SET DATA_RECEIVED = ? WHERE IP = ?", ("True", request.remote_addr))
-                            db.commit()
-                            done=True
-                        except:
-                            nothing="nothing"
-                    done=False
-                    while not done:
-                        try:
-                            cursor.execute("UPDATE al SET QUEUE = ? WHERE IP = ?", (str(eval(read_db(request.remote_addr)[12])[1:]), request.remote_addr))
-                            db.commit()
-                            done=True
-                        except:
-                            nothing="nothing"
+    datal=request.get_json().get("message")
+    if(read_db(request.remote_addr)[11]!=""):#image has loaded
+        data_received=True
+        db=get_db()
+        ie=read_db(request.remote_addr)
+        data=eval(read_db(request.remote_addr)[12])
+        data.append(str(datal))
+        #could restructure to put all received into a queue and just wait here to send the next thing using while eval(read[8])!=[]: time.sleep(0.1), then send the next thing and remove it from the queue, this should also improve framerate 
+        cursor=db.cursor()
+        done=False
+        while not done:
+            try:
+                cursor.execute("UPDATE al SET QUEUE = ? WHERE IP = ?", (str(data), request.remote_addr))
+                db.commit()
+                done=True
+            except:
+                nothing="nothing"
+        while(len(eval(read_db(request.remote_addr)[12]))>0):
+            if(read_db(request.remote_addr)[8]=="[]"):
+                done=False
+                while not done:
+                    try:
+                        cursor.execute("UPDATE al SET DATA = ? WHERE IP = ?", (str("["+str('"'+eval(read_db(request.remote_addr)[12])[0]+'"')+"]"), request.remote_addr))
+                        db.commit()
+                        done=True
+                    except:
+                        nothing="nothing"
+                done=False
+                while not done:
+                    try:
+                        cursor.execute("UPDATE al SET DATA_RECEIVED = ? WHERE IP = ?", ("True", request.remote_addr))
+                        db.commit()
+                        done=True
+                    except:
+                        nothing="nothing"
+                done=False
+                while not done:
+                    try:
+                        cursor.execute("UPDATE al SET QUEUE = ? WHERE IP = ?", (str(eval(read_db(request.remote_addr)[12])[1:]), request.remote_addr))
+                        db.commit()
+                        done=True
+                    except:
+                        nothing="nothing"
             #FIX FOR REALLY WEIRD MOBILE BROWSER DATA LOSS BUG 
      #       if data=="[]":
      #           cursor.execute("UPDATE al SET EMPTY = ? WHERE IP = ?", ("True", request.remote_addr))
@@ -423,9 +422,7 @@ def recieve():
       #              time.sleep(0.1)
       #      cursor.execute("UPDATE al SET RECEIVED = ? WHERE IP = ?", ("False", request.remote_addr))
       #      db.commit()
-        return {'status': 'success'}
-    except Exception as e:
-        return e
+    return {'status': 'success'}
 @app.route('/usergenerate')
 def UserGenerate():
     ie=read_db(request.remote_addr)
