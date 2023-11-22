@@ -289,7 +289,8 @@ def selenium(IP):
             #            db.commit()
             #            break
             with app.app_context():
-                while(len(eval(read_db(IP)[8]))>0): 
+               # while(len(eval(read_db(IP)[8]))>0): 
+                if True:
                     #deal with keys/clicks
                     datal=read_db(IP)[8]
                     action=eval(datal)
