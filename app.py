@@ -296,6 +296,7 @@ def selenium(IP):
                     if eval(action[0])[0]=="type":
                         #test
                         #make sure that only letter keys are sent in JS
+                        print("type")
                         elem = driver.switch_to.active_element
                         action_list.append("T")
                         if eval(action[0])[1]=="Backspace":
