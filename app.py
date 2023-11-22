@@ -344,16 +344,18 @@ def selenium(IP):
                         db=get_db()
                         cursor=db.cursor()
                         done=False
-                        while not done:
-                            try:
-                                cursor.execute("UPDATE al SET DATA = ? WHERE IP = ?", (str(eval(read_db(IP)[8])[1:]), IP))
-                                db.commit()
-                                done=True
-                            except:
-                                nothing="nothing"
+                        olddata=eval(read_db(IP)[8])
+                        while True:
+                            while not done:
+                                try:
+                                    cursor.execute("UPDATE al SET DATA = ? WHERE IP = ?", (str(eval(read_db(IP)[8])[1:]), IP))
+                                    db.commit()
+                                    done=True
+                                except:
+                                    nothing="nothing"
+                            if(eval(read_db(IP)[8])!=olddata):
+                                break
                         print("updated")
-                    #need to convert p5 coordinates to selenium coordinates
-                    #p5 is on a scale of 1000,1000 with 0,0 in top left
         if driver.current_url==url:
             with app.app_context():
                 sendESP(action_list, IP)
