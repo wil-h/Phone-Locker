@@ -356,6 +356,7 @@ def selenium(IP):
                             if(eval(read_db(IP)[8])!=olddata):
                                 break
                         print("updated")
+                        print(eval(read_db(IP)[8]))
         if driver.current_url==url:
             with app.app_context():
                 sendESP(action_list, IP)
