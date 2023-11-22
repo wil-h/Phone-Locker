@@ -376,6 +376,7 @@ def selenium(IP):
 #all this is still good for new method, just transferring data between two functions that need editing
 @app.route('/receive', methods=['POST'])
 def recieve():
+    print("/receive ran")
     datal=request.get_json().get("message")
     if(read_db(request.remote_addr)[11]!=""):#image has loaded
         data_received=True
