@@ -238,7 +238,7 @@ def selenium(IP):
                         nothing="nothing"
             #runs while page is being edited
             with app.app_context():
-                while read_db(IP)[8]=="[]":
+                while read_db(IP)[4]=="False":
                     #build the screen
                     img=driver.get_screenshot_as_png()
                     pil=Image.open(io.BytesIO(img))
@@ -291,76 +291,75 @@ def selenium(IP):
             #            break
             with app.app_context():
                # while(len(eval(read_db(IP)[8]))>0): 
-                if True:
-                    #deal with keys/clicks
-                    datal=read_db(IP)[8]
-                    action=eval(datal)
-                    if eval(action[0])[0]=="type":
-                        #test
-                        #make sure that only letter keys are sent in JS
-                        print("type")
-                        elem = driver.switch_to.active_element
-                        action_list.append("T")
-                        if eval(action[0])[1]=="Backspace":
-                            elem.send_keys(Keys.BACKSPACE)
-                            action_list.append("BS")
-                        else:
-                            elem.send_keys(eval(action[0])[1])
-                            action_list.append(eval(action[0])[1])
-                    if eval(action[0])[0]=="click": 
-                        print("received")
-                        if oldurl!=driver.current_url:
-                            old_url=driver.current_url
+                #deal with keys/clicks
+                datal=read_db(IP)[8]
+                action=eval(datal)
+                if eval(action[0])[0]=="type":
+                    #test
+                    #make sure that only letter keys are sent in JS
+                    print("type")
+                    elem = driver.switch_to.active_element
+                    action_list.append("T")
+                    if eval(action[0])[1]=="Backspace":
+                        elem.send_keys(Keys.BACKSPACE)
+                        action_list.append("BS")
+                    else:
+                        elem.send_keys(eval(action[0])[1])
+                        action_list.append(eval(action[0])[1])
+                if eval(action[0])[0]=="click": 
+                    print("received")
+                    if oldurl!=driver.current_url:
+                        old_url=driver.current_url
+                        try:
+                            body=driver.find_element(By.TAG_NAME, "body")
+                            actions.move_to_element(body)
+                            actions.move_by_offset(-1,0).click() 
+                            actions.perform()
+                            xdim=480
+                        except:
+                            xdim=960
+                        try:
+                            body=driver.find_element(By.TAG_NAME, "body")
+                            actions.move_to_element(body)
+                            actions.move_by_offset(0,-1).click() 
+                            actions.perform()
+                            ydim=430
+                    except:
+                            ydim=860
+                        print("dimensions determined")
+                    if xdim==480:
+                        x=round(int(eval(action[0])[1])/1000*960-480)
+                    if xdim==960:
+                        x=round(int(eval(action[0])[1])/1000*960)
+                    if ydim==430:
+                        y=round(int(eval(action[0])[2])/1000*860-430)  
+                    if ydim==860:
+                        y=round(int(eval(action[0])[2])/1000*860)  
+                    body=driver.find_element(By.TAG_NAME, "body")
+                    actions.move_to_element(body)
+                    actions.move_by_offset(x,y).click() 
+                    actions.perform()
+                    print("executed")
+                    action_list.append("C")
+                    action_list.append(str(x)+","+str(y))
+                with app.app_context():
+                    db=get_db()
+                    cursor=db.cursor()
+                    done=False
+                    olddata=eval(read_db(IP)[8])
+                    print("before: ",eval(read_db(IP)[8]))
+                    while True:
+                        while not done:
                             try:
-                                body=driver.find_element(By.TAG_NAME, "body")
-                                actions.move_to_element(body)
-                                actions.move_by_offset(-1,0).click() 
-                                actions.perform()
-                                xdim=480
+                                cursor.execute("UPDATE al SET DATA = ? WHERE IP = ?", (str(eval(read_db(IP)[8])[1:]), IP))
+                                db.commit()
+                                done=True
                             except:
-                                xdim=960
-                            try:
-                                body=driver.find_element(By.TAG_NAME, "body")
-                                actions.move_to_element(body)
-                                actions.move_by_offset(0,-1).click() 
-                                actions.perform()
-                                ydim=430
-                            except:
-                                ydim=860
-                            print("dimensions determined")
-                        if xdim==480:
-                            x=round(int(eval(action[0])[1])/1000*960-480)
-                        if xdim==960:
-                            x=round(int(eval(action[0])[1])/1000*960)
-                        if ydim==430:
-                            y=round(int(eval(action[0])[2])/1000*860-430)  
-                        if ydim==860:
-                            y=round(int(eval(action[0])[2])/1000*860)  
-                        body=driver.find_element(By.TAG_NAME, "body")
-                        actions.move_to_element(body)
-                        actions.move_by_offset(x,y).click() 
-                        actions.perform()
-                        print("executed")
-                        action_list.append("C")
-                        action_list.append(str(x)+","+str(y))
-                    with app.app_context():
-                        db=get_db()
-                        cursor=db.cursor()
-                        done=False
-                        olddata=eval(read_db(IP)[8])
-                        print("before: ",eval(read_db(IP)[8]))
-                        while True:
-                            while not done:
-                                try:
-                                    cursor.execute("UPDATE al SET DATA = ? WHERE IP = ?", (str(eval(read_db(IP)[8])[1:]), IP))
-                                    db.commit()
-                                    done=True
-                                except:
-                                    nothing="nothing"
-                            if(eval(read_db(IP)[8])!=olddata):
-                                break
-                        print("updated")
-                        print("after: ",eval(read_db(IP)[8]))
+                                nothing="nothing"
+                        if(eval(read_db(IP)[8])!=olddata):
+                            break
+                    print("updated")
+                    print("after: ",eval(read_db(IP)[8]))
         if driver.current_url==url:
             with app.app_context():
                 sendESP(action_list, IP)
@@ -398,7 +397,7 @@ def recieve():
             except:
                 nothing="nothing"
         while(len(eval(read_db(request.remote_addr)[12]))>0):
-            if(read_db(request.remote_addr)[8]=="[]"):
+            if(read_db(request.remote_addr)[4]=="False"):
                 done=False
                 while not done:
                     try:
@@ -415,7 +414,7 @@ def recieve():
                         done=True
                     except:
                         nothing="nothing"
-                        done=False
+                    done=False
                 while not done:
                     try:
                         cursor.execute("UPDATE al SET QUEUE = ? WHERE IP = ?", (str(eval(read_db(request.remote_addr)[12])[1:]), request.remote_addr))
