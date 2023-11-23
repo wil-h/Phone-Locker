@@ -62,13 +62,6 @@
             console.error(error);
           });
 
-          //send an update ping
-          $.ajax({
-                type: "POST",
-                url: "/receive",
-                contentType: "application/json;charset=UTF-8",
-                data: JSON.stringify({ message: [""] }),
-            });    
         // Update the last fetch time
         lastFetchTime = millis();
       }
