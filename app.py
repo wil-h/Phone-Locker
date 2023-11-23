@@ -295,54 +295,57 @@ def selenium(IP):
                 #deal with keys/clicks
                 datal=read_db(IP)[8]
                 action=eval(datal)
-                if eval(action[0])[0]=="type":
-                    #test
-                    #make sure that only letter keys are sent in JS
-                    print("type")
-                    elem = driver.switch_to.active_element
-                    action_list.append("T")
-                    if eval(action[0])[1]=="Backspace":
-                        elem.send_keys(Keys.BACKSPACE)
-                        action_list.append("BS")
-                    else:
-                        elem.send_keys(eval(action[0])[1])
-                        action_list.append(eval(action[0])[1])
-                if eval(action[0])[0]=="click": 
-                    print("received")
-                    if oldurl!=driver.current_url:
-                        old_url=driver.current_url
-                        try:
-                            body=driver.find_element(By.TAG_NAME, "body")
-                            actions.move_to_element(body)
-                            actions.move_by_offset(-1,0).click() 
-                            actions.perform()
-                            xdim=480
-                        except:
-                            xdim=960
-                        try:
-                            body=driver.find_element(By.TAG_NAME, "body")
-                            actions.move_to_element(body)
-                            actions.move_by_offset(0,-1).click() 
-                            actions.perform()
-                            ydim=430
-                        except:
-                            ydim=860
-                        print("dimensions determined")
-                    if xdim==480:
-                        x=round(int(eval(action[0])[1])/1000*960-480)
-                    if xdim==960:
-                        x=round(int(eval(action[0])[1])/1000*960)
-                    if ydim==430:
-                        y=round(int(eval(action[0])[2])/1000*860-430)  
-                    if ydim==860:
-                        y=round(int(eval(action[0])[2])/1000*860)  
-                    body=driver.find_element(By.TAG_NAME, "body")
-                    actions.move_to_element(body)
-                    actions.move_by_offset(x,y).click() 
-                    actions.perform()
-                    print("executed")
-                    action_list.append("C")
-                    action_list.append(str(x)+","+str(y))
+                try:
+                    if eval(action[0])[0]=="type":
+                        #test
+                        #make sure that only letter keys are sent in JS
+                        print("type")
+                        elem = driver.switch_to.active_element
+                        action_list.append("T")
+                        if eval(action[0])[1]=="Backspace":
+                            elem.send_keys(Keys.BACKSPACE)
+                            action_list.append("BS")
+                        else:
+                            elem.send_keys(eval(action[0])[1])
+                            action_list.append(eval(action[0])[1])
+                    if eval(action[0])[0]=="click": 
+                        print("received")
+                        if oldurl!=driver.current_url:
+                            old_url=driver.current_url
+                            try:
+                                body=driver.find_element(By.TAG_NAME, "body")
+                                actions.move_to_element(body)
+                                actions.move_by_offset(-1,0).click() 
+                                actions.perform()
+                                xdim=480
+                            except:
+                                xdim=960
+                            try:
+                                body=driver.find_element(By.TAG_NAME, "body")
+                                actions.move_to_element(body)
+                                actions.move_by_offset(0,-1).click() 
+                                actions.perform()
+                                ydim=430
+                            except:
+                                ydim=860
+                            print("dimensions determined")
+                        if xdim==480:
+                            x=round(int(eval(action[0])[1])/1000*960-480)
+                        if xdim==960:
+                            x=round(int(eval(action[0])[1])/1000*960)
+                        if ydim==430:
+                            y=round(int(eval(action[0])[2])/1000*860-430)  
+                        if ydim==860:
+                            y=round(int(eval(action[0])[2])/1000*860)  
+                        body=driver.find_element(By.TAG_NAME, "body")
+                        actions.move_to_element(body)
+                        actions.move_by_offset(x,y).click() 
+                        actions.perform()
+                        print("executed")
+                        action_list.append("C")
+                        action_list.append(str(x)+","+str(y))
+                    except:
+                        nothing="nothing"
                 with app.app_context():
                     db=get_db()
                     cursor=db.cursor()
