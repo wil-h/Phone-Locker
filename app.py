@@ -368,6 +368,7 @@ def selenium(IP):
                     print("updated")
                     print("after: ",eval(read_db(IP)[8]))
         if driver.current_url==url:
+            print("url=url")
             with app.app_context():
                 sendESP(action_list, IP)
                 db=get_db()
@@ -381,7 +382,6 @@ def selenium(IP):
                     except:
                         nothing="nothing"
     except Exception as e:  
-        line=traceback.extract_tb(e.__traceback__)[-1].lineno
         print(e,line)
 #all this is still good for new method, just transferring data between two functions that need editing
 @app.route('/receive', methods=['POST'])
