@@ -173,7 +173,6 @@ def ug():
     return render_template("usergenerate.html")
 @app.route('/upload')
 def sendESP(action_list, IP):
-    print("send esp started")
     ie=read_db(IP)
     SCode=ie[6]
     with app.app_context():
@@ -189,7 +188,6 @@ def sendESP(action_list, IP):
             except:
                 nothing="nothing"
         done=True
-        print("sent")
 @app.route('/setting')
 def servesetting():
     return send_file('images/setting.gif')
@@ -301,7 +299,6 @@ def selenium(IP):
                     if eval(action[0])[0]=="type":
                         #test
                         #make sure that only letter keys are sent in JS
-                        print("type")
                         elem = driver.switch_to.active_element
                         action_list.append("T")
                         if eval(action[0])[1]=="Backspace":
@@ -311,7 +308,6 @@ def selenium(IP):
                             elem.send_keys(eval(action[0])[1])
                             action_list.append(eval(action[0])[1])
                     if eval(action[0])[0]=="click": 
-                        print("received")
                         if oldurl!=driver.current_url:
                             old_url=driver.current_url
                             try:
@@ -330,7 +326,6 @@ def selenium(IP):
                                 ydim=430
                             except:
                                 ydim=860
-                            print("dimensions determined")
                         if xdim==480:
                             x=round(int(eval(action[0])[1])/1000*960-480)
                         if xdim==960:
@@ -343,7 +338,6 @@ def selenium(IP):
                         actions.move_to_element(body)
                         actions.move_by_offset(x,y).click() 
                         actions.perform()
-                        print("executed")
                         action_list.append("C")
                         action_list.append(str(x)+","+str(y))
                 except:
@@ -353,7 +347,6 @@ def selenium(IP):
                     cursor=db.cursor()
                     done=False
                     olddata=eval(read_db(IP)[8])
-                    print("before: ",eval(read_db(IP)[8]))
                     while True:
                         while not done:
                             try:
@@ -364,10 +357,7 @@ def selenium(IP):
                                 nothing="nothing"
                         if(eval(read_db(IP)[8])!=olddata):
                             break
-                    print("updated")
-                    print("after: ",eval(read_db(IP)[8]))
         if driver.current_url==url:
-            print("url=url")
             with app.app_context():
                 sendESP(action_list, IP)
                 db=get_db()
@@ -381,11 +371,10 @@ def selenium(IP):
                     except:
                         nothing="nothing"
     except Exception as e:  
-        print(e,line)
+        print(e)
 #all this is still good for new method, just transferring data between two functions that need editing
 @app.route('/receive', methods=['POST'])
 def recieve():
-    print("/receive ran")
     datal=request.get_json().get("message")
     if(read_db(request.remote_addr)[11]!=""):#image has loaded
         data_received=True
