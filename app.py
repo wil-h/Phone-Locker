@@ -17,7 +17,6 @@ import threading
 import tempfile
 import time
 import os   
-import traceback
 import logging
 import sqlite3
 import io
