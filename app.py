@@ -324,7 +324,7 @@ def selenium(IP):
                             actions.move_by_offset(0,-1).click() 
                             actions.perform()
                             ydim=430
-                    except:
+                        except:
                             ydim=860
                         print("dimensions determined")
                     if xdim==480:
