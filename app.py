@@ -239,7 +239,7 @@ def selenium(IP):
                         nothing="nothing"
             #runs while page is being edited
             with app.app_context():
-                while read_db(IP)[4]=="False":
+                while read_db(IP)[4]=="False" or read_db(IP)[8]=="[]":
                     #build the screen
                     img=driver.get_screenshot_as_png()
                     pil=Image.open(io.BytesIO(img))
@@ -264,9 +264,10 @@ def selenium(IP):
                     if rep>20000:
                         break
                     if driver.current_url==url:
-                        time.sleep(3)
                         break
                     time.sleep(0.1)
+            if driver.current_url==url:
+                break
             if rep>20000:
                 break 
             with app.app_context():
@@ -419,7 +420,7 @@ def recieve():
                         done=True
                     except:
                         nothing="nothing"
-                    done=False
+                done=False
                 while not done:
                     try:
                         cursor.execute("UPDATE al SET QUEUE = ? WHERE IP = ?", (str(eval(read_db(request.remote_addr)[12])[1:]), request.remote_addr))
