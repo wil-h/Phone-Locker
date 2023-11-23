@@ -17,6 +17,7 @@ import threading
 import tempfile
 import time
 import os   
+import traceback
 import logging
 import sqlite3
 import io
@@ -374,7 +375,8 @@ def selenium(IP):
                     except:
                         nothing="nothing"
     except Exception as e:  
-        print(e)
+        line=traceback.extract_tb(e.__traceback__)[-1].lineno
+        print(e,line)
 #all this is still good for new method, just transferring data between two functions that need editing
 @app.route('/receive', methods=['POST'])
 def recieve():
