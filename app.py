@@ -174,6 +174,7 @@ def ug():
     return render_template("usergenerate.html")
 @app.route('/upload')
 def sendESP(action_list, IP):
+    print("send esp started")
     ie=read_db(IP)
     SCode=ie[6]
     with app.app_context():
@@ -189,6 +190,7 @@ def sendESP(action_list, IP):
             except:
                 nothing="nothing"
         done=True
+        print("sent")
 @app.route('/setting')
 def servesetting():
     return send_file('images/setting.gif')
