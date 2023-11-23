@@ -344,8 +344,8 @@ def selenium(IP):
                         print("executed")
                         action_list.append("C")
                         action_list.append(str(x)+","+str(y))
-                    except:
-                        nothing="nothing"
+                except:
+                    nothing="nothing"
                 with app.app_context():
                     db=get_db()
                     cursor=db.cursor()
