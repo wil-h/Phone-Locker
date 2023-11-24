@@ -79,18 +79,19 @@ def getstatus():
     actionlst=request.data.decode('utf-8')
     actionlist=eval(eval(actionlst))
     options = Options()
-    options.add_argument("--headless")
+    options.add_argument("--headless=new")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("enable-automation")
     options.add_argument("--disable-infobars")
+    options.add_argument("--disable-extensions")
     options.add_argument("--disable-dev-shm-usage")
     driver = webdriver.Chrome(options=options)
     ur_l=actionlist[0]
     driver.get(ur_l)
     WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
-    time.sleep(1)
-    for x in range(0,len(actionlist),2):
+    time.sleep(3)
+    for x in range(1,len(actionlist),2):
         if actionlist[x]=='T':
             elem = driver.switch_to.active_element
             if actionlist[x+1]!='BS':
@@ -107,7 +108,7 @@ def getstatus():
             actions.move_by_offset(l[0],l[1]).click() 
             actions.perform()
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
-            time.sleep(1)
+            time.sleep(4)
     if driver.current_url==ur_l:
         #check for upcoming assingments
         if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
