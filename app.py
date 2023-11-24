@@ -128,17 +128,21 @@ def getstatus():
 
 @app.route('/api/setup', methods=['GET'])
 def api_data():
-    db=get_db()
-    cursor = db.execute('SELECT * FROM al')
-    al=cursor.fetchall()
-    alist=[dict(row) for row in al]
-    for dic in alist:
-        if dic["IP"]==request.remote_addr:
-            retun=dic["action_list"]
-            curs=db.cursor()
-            curs.execute('DELETE FROM al WHERE IP = ?', (request.remote_addr,))
-            db.commit()
-            return jsonify(retun)
+    try:
+        if read_db(request.remote_addr)[7]!="[]" and read_db(request.remote_addr)[4]=="done":
+            db=get_db()
+            cursor = db.execute('SELECT * FROM al')
+            al=cursor.fetchall()
+            alist=[dict(row) for row in al]
+            for dic in alist:
+                if dic["IP"]==request.remote_addr:
+                    retun=dic["action_list"]
+                    curs=db.cursor()
+                    curs.execute('DELETE FROM al WHERE IP = ?', (request.remote_addr,))
+                    db.commit()
+                    return jsonify(retun)
+    except:
+        return jsonify("none")
     return jsonify("none")
 @app.route('/')
 def home():
