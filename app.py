@@ -89,6 +89,7 @@ def getstatus():
     driver = webdriver.Chrome(options=options)
     ur_l=actionlist[0]
     driver.get(ur_l)
+    driver.set_window_size(1000,1000)
     WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
     time.sleep(3)
     for x in range(1,len(actionlist),2):
