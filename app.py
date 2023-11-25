@@ -111,6 +111,7 @@ def findstatus(IP,actionlst):
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
             time.sleep(4)
     if driver.current_url==ur_l:
+        print("arrived at teams")
         #check for upcoming assingments
         if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
             WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
@@ -127,6 +128,7 @@ def findstatus(IP,actionlst):
             status="false"
     else:
         status="false"
+    print(status)
     with app.app_context():
         db=get_db()
         curs=db.cursor()
@@ -157,6 +159,7 @@ def getstatus():
         try:
             status=read_db(request.remote_addr)[8]
             db=get_db()
+            print("received")
             curs=db.cursor()
             curs.execute('DELETE FROM al WHERE IP = ?', (request.remote_addr,))
             db.commit()
