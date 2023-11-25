@@ -104,18 +104,14 @@ def findstatus(IP,actionlst):
             body=driver.find_element(By.TAG_NAME, "body")
             actions.move_to_element(body)
             l=actionlist[x+1].split(',')
-            print(actionlist[x+1])
-            print(l)
             actions.move_by_offset(l[0],l[1]).click() 
             actions.perform()
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
             time.sleep(4)
     if driver.current_url==ur_l:
-        print("arrived at teams")
         #check for upcoming assingments
         if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
-            WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
-            print("done waiting")
+            WebDriverWait(driver, 90).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
             driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
             time.sleep(5)
             days=[]
@@ -129,7 +125,6 @@ def findstatus(IP,actionlst):
             status="false"
     else:
         status="false"
-    print(status)
     with app.app_context():
         db=get_db()
         curs=db.cursor()
@@ -146,13 +141,11 @@ def findstatus(IP,actionlst):
                 done=True
             except:
                 nothing="nothing"
-    
 @app.route('/api/startstatus', methods=['POST'])
 def startstatus():
     actionlst=request.data.decode('utf-8')
     thread = threading.Thread(target=findstatus, args=(request.remote_addr,actionlst,))
     thread.start()
-    print("started")
     return("started")
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
@@ -160,13 +153,14 @@ def getstatus():
         try:
             status=read_db(request.remote_addr)[8]
             db=get_db()
-            print("received")
             curs=db.cursor()
             curs.execute('DELETE FROM al WHERE IP = ?', (request.remote_addr,))
             db.commit()
-            return(status)
+            if(status=="true" or status=="false"):
+                return(status)
         except:
             return("waiting")
+        return("waiting")
 
 @app.route('/api/setup', methods=['GET'])
 def api_data():
