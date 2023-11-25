@@ -114,11 +114,8 @@ def findstatus(IP,actionlst):
         print("arrived at teams")
         #check for upcoming assingments
         if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
-
-            time.sleep(20)
-            print(driver.page_source)
-            
             WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
+            print("done waiting")
             driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
             time.sleep(5)
             days=[]
