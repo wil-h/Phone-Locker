@@ -157,6 +157,7 @@ def getstatus():
             curs.execute('DELETE FROM al WHERE IP = ?', (request.remote_addr,))
             db.commit()
             if(status=="true" or status=="false"):
+                print("returned status")
                 return(status)
         except:
             return("waiting")
