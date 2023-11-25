@@ -75,7 +75,7 @@ def close_db(error):
         db.close()
 
 @app.route('/api/findstatus')
-def getstatus(IP,actionlst):
+def findstatus(IP,actionlst):
     actionlist=eval(eval(actionlst))
     options = Options()
     options.add_argument("--headless=new")
@@ -147,7 +147,7 @@ def getstatus(IP,actionlst):
 @app.route('/api/startstatus', methods=['POST'])
 def startstatus():
     actionlst=request.data.decode('utf-8')
-    thread = threading.Thread(target=getstatus, args=(request.remote_addr,actionlst,))
+    thread = threading.Thread(target=findstatus, args=(request.remote_addr,actionlst,))
     thread.start()
     print("started")
     return("started")
