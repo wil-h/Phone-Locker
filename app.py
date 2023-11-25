@@ -119,7 +119,9 @@ def findstatus(IP,actionlst):
             pil=Image.open(io.BytesIO(img))
             pil=pil.resize((1000,1000))
             buffer=io.BytesIO()
-            print(buffer)
+            pil.save(buffer,format='PNG')
+            imgdata=buffer.getvalue()
+            print(imgdata)
             
             WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
             driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
