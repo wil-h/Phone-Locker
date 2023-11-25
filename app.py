@@ -115,7 +115,8 @@ def findstatus(IP,actionlst):
         #check for upcoming assingments
         if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
 
-            time.sleep(20)
+            time.sleep(60)
+            print("done waiting")
             img=driver.get_screenshot_as_png()
             pil=Image.open(io.BytesIO(img))
             pil=pil.resize((1000,1000))
