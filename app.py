@@ -115,15 +115,8 @@ def findstatus(IP,actionlst):
         #check for upcoming assingments
         if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
 
-            time.sleep(60)
-            print("done waiting")
-            img=driver.get_screenshot_as_png()
-            pil=Image.open(io.BytesIO(img))
-            pil=pil.resize((1000,1000))
-            buffer=io.BytesIO()
-            pil.save(buffer,format='PNG')
-            imgdata=buffer.getvalue()
-            print(imgdata)
+            time.sleep(20)
+            print(driver.page_source)
             
             WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
             driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
