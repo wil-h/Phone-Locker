@@ -74,9 +74,8 @@ def close_db(error):
     if db is not None:
         db.close()
 
-@app.route('/api/status', methods=['POST'])
-def getstatus():
-    actionlst=request.data.decode('utf-8')
+@app.route('/api/findstatus')
+def getstatus(IP,actionlst):
     actionlist=eval(eval(actionlst))
     options = Options()
     options.add_argument("--headless=new")
@@ -84,7 +83,6 @@ def getstatus():
     options.add_argument("--no-sandbox")
     options.add_argument("enable-automation")
     options.add_argument("--disable-infobars")
-    options.add_argument("--disable-extensions")
     options.add_argument("--disable-dev-shm-usage")
     driver = webdriver.Chrome(options=options)
     ur_l=actionlist[0]
@@ -106,6 +104,8 @@ def getstatus():
             body=driver.find_element(By.TAG_NAME, "body")
             actions.move_to_element(body)
             l=actionlist[x+1].split(',')
+            print(actionlist[x+1])
+            print(l)
             actions.move_by_offset(l[0],l[1]).click() 
             actions.perform()
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
@@ -120,13 +120,49 @@ def getstatus():
             try:
                 days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
             except:
-                return("false")
+                status="false"
             for day in days:
                 if day.text=="Today" or day.text=="Tomorrow":
-                    return("true")
-            return("false")
+                    status="true"
+            status="false"
     else:
-        return("false")
+        status="false"
+    with app.app_context():
+        db=get_db()
+        curs=db.cursor()
+        try:
+            curs.execute('DELETE FROM al WHERE IP = ?', (IP,))
+            db.commit()
+        except:
+            donothing="nothing"
+        done=False
+        while not done:
+            try:
+                db.execute('INSERT INTO al (IP, URL, FIRST_TIME, DATA_RECEIVED, DONE, DATA, EMPTY, RECEIVED, action_list, QUEUE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (IP, "", "True", "False", "False", status, "False", "False", "[]", "[]"))
+                db.commit()
+                done=True
+            except:
+                nothing="nothing"
+    
+@app.route('/api/startstatus', methods=['POST'])
+def startstatus():
+    actionlst=request.data.decode('utf-8')
+    thread = threading.Thread(target=getstatus, args=(request.remote_addr,actionlst,))
+    thread.start()
+    print("started")
+    return("started")
+@app.route('/api/getstatus', methods=["GET"])
+def getstatus():
+    with app.app_context():
+        try:
+            status=read_db(request.remote_addr)[8]
+            db=get_db()
+            curs=db.cursor()
+            curs.execute('DELETE FROM al WHERE IP = ?', (request.remote_addr,))
+            db.commit()
+            return(status)
+        except:
+            return("waiting")
 
 @app.route('/api/setup', methods=['GET'])
 def api_data():
