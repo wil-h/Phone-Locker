@@ -126,7 +126,6 @@ def findstatus(IP,actionlst):
             pil=pil.resize((1000,1000))
             pil.save("image2.png", format='PNG')
             #---------------------------------------------------------------------------------------------------------------------------------
-
             WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
             driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
             time.sleep(5)
