@@ -111,9 +111,21 @@ def findstatus(IP,actionlst):
     if driver.current_url==ur_l:
         #check for upcoming assingments
         if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
+             #---------------------------------------------------------------------------------------------------------------------------------
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
             time.sleep(15)
-            print(driver.page_source)
+            img=driver.get_screenshot_as_png()
+            pil=Image.open(io.BytesIO(img))
+            pil=pil.resize((1000,1000))
+            pil.save("image1.png", format='PNG')
+            driver.refresh()
+            time.sleep(15)
+            img=driver.get_screenshot_as_png()
+            pil=Image.open(io.BytesIO(img))
+            pil=pil.resize((1000,1000))
+            pil.save("image2.png", format='PNG')
+            #---------------------------------------------------------------------------------------------------------------------------------
+
             WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
             driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
             time.sleep(5)
