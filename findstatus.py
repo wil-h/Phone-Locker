@@ -86,11 +86,14 @@ def findstatus(IP, actionlst):
             actions.perform()
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
             time.sleep(4)
+    print("waiting")
     time.sleep(15)
+    print("woted")
     if driver.current_url==ur_l:
+        print("url==url")
         #check for upcoming assingments
         if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
-            
+            print("url==teams")
             #---------------------------------------------------------------------------------------------------------------------------------
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
             #time.sleep(15)
@@ -108,12 +111,18 @@ def findstatus(IP, actionlst):
 
             WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
             driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
+            print("waited for iframe")
             time.sleep(5)
             days=[]
             try:
+                WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME, "date-group-label-shorthand__pjq0w")))
+                print("waited for days")
                 days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
+                print("found days:",days)
             except:
                 status="false"
+                print("had exception")
+                days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
             for day in days:
                 if day.text=="Today" or day.text=="Tomorrow" or day.text=="Friday":
                     status="true"
