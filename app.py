@@ -8,7 +8,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from flask import Flask, request, render_template, send_file, g, jsonify
-from ultralytics import YOLO
 from PIL import Image
 import random
 from waitress import serve
