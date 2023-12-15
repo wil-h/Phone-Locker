@@ -72,128 +72,25 @@ def close_db(error):
     if db is not None:
         db.close()
 
-@app.route('/api/findstatus')
-def findstatus(IP,actionlst):
-    #try:
-    actionlist=eval(eval(actionlst))
-    options = Options()
-    options.add_argument("--headless=new")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("enable-automation")
-    options.add_argument("--disable-infobars")
-    options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=options)
-    ur_l=actionlist[0]
-    driver.get(ur_l)
-    driver.set_window_size(1000,1000)
-    WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
-    time.sleep(3)
-    for x in range(1,len(actionlist),2):
-        if actionlist[x]=='T':
-            elem = driver.switch_to.active_element
-            if actionlist[x+1]!='BS':
-                elem.send_keys(actionlist[x+1])
-            else:
-                elem.send_keys(Keys.BACKSPACE)
-        if actionlist[x]=='C':
-            WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
-            time.sleep(1)
-            actions = ActionChains(driver)
-            body=driver.find_element(By.TAG_NAME, "body")
-            actions.move_to_element(body)
-            l=actionlist[x+1].split(',')
-            actions.move_by_offset(l[0],l[1]).click() 
-            actions.perform()
-            WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
-            time.sleep(4)
-    if driver.current_url==ur_l:
-        #check for upcoming assingments
-        if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
-             #---------------------------------------------------------------------------------------------------------------------------------
-            WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
-            x=1
-            while True:
-                img=driver.get_screenshot_as_png()
-                pil=Image.open(io.BytesIO(img))
-                pil=pil.resize((1000,1000))
-                pil.save("image"+str(x)+".png", format='PNG')
-                x+=1
-                print(x)
-                time.sleep(1)
-            driver.refresh()
-            time.sleep(60)
-            img=driver.get_screenshot_as_png()
-            pil=Image.open(io.BytesIO(img))
-            pil=pil.resize((1000,1000))
-            pil.save("image2.png", format='PNG')
-            #---------------------------------------------------------------------------------------------------------------------------------
-            WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
-            driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
-            time.sleep(5)
-            days=[]
-            try:
-                days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
-            except:
-                status="false"
-            for day in days:
-                if day.text=="Today" or day.text=="Tomorrow":
-                    status="true"
-            status="false"
-    else:
-        status="false"
-    with app.app_context():
-        db=get_db()
-        curs=db.cursor()
-        try:
-            curs.execute('DELETE FROM al WHERE IP = ?', (IP,))
-            db.commit()
-        except:
-            donothing="nothing"
-        done=False
-        while not done:
-            try:
-                db.execute('INSERT INTO al (IP, URL, FIRST_TIME, DATA_RECEIVED, DONE, DATA, EMPTY, RECEIVED, action_list, QUEUE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (IP, "", "True", "False", "False", status, "False", "False", "[]", "[]"))
-                db.commit()
-                done=True
-            except:
-                nothing="nothing"
-   # except Exception as e:
-   #     print(e)
-   #     with app.app_context():
-   #         db=get_db()
-   #         curs=db.cursor()
-   #         try:
-   #             curs.execute('DELETE FROM al WHERE IP = ?', (IP,))
-   #             db.commit()
-   #         except:
-   #             donothing="nothing"
-   #         done=False
-   #         while not done:
-   #             try:
-   #                 db.execute('INSERT INTO al (IP, URL, FIRST_TIME, DATA_RECEIVED, DONE, DATA, EMPTY, RECEIVED, action_list, QUEUE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (IP, "", "True", "False", "False", "false", "False", "False", "[]", "[]"))
-   #                 db.commit()
-   #                 done=True
-   #             except:
-   #                 nothing="nothing"
+
 @app.route('/api/startstatus', methods=['POST'])
 def startstatus():
     actionlst=request.data.decode('utf-8')
-    thread = threading.Thread(target=findstatus, args=(request.remote_addr,actionlst,))
-    thread.start()
+    db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.remote_addr,"false","",actionlst))
+    db.commit()
     return("started")
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
     with app.app_context():
         try:
-            status=read_db(request.remote_addr)[8]
             db=get_db()
-            curs=db.cursor()
-            curs.execute('DELETE FROM al WHERE IP = ?', (request.remote_addr,))
-            db.commit()
-            if(status=="true" or status=="false"):
-                print("returned status")
-                return(status)
+            cursor = db.execute('SELECT * FROM api')
+            al=cursor.fetchall()
+            dicti=[dict(row) for row in al]
+            for dic in dicti:
+                if dic["IP"]==request.remote_addr:
+                    if dic["WORKING"]=="done":
+                        return(dic["STATUS"])
         except:
             return("waiting")
         return("waiting")
