@@ -9,32 +9,6 @@ import threading
 import time
 import sqlite3
 
-#-----------------------------------
-conn = sqlite3.connect('database.db')
-cursor = conn.cursor()
-cursor.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', ("helloabdulionigsdssdf", "false", "", "['https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom', 'C', '-55,352', 'T', 'W', 'T', 'h', 'T', 'a', 'T', 'r', 'T', 'r', 'T', 'i', 'T', 'c', 'T', 'k', 'T', '2', 'T', '5', 'T', '@', 'T', 'c', 'T', 'h', 'T', 'a', 'T', 'r', 'T', 'l', 'T', 'o', 'T', 't', 'T', 't', 'T', 'e', 'T', 'c', 'T', 'o', 'T', 'u', 'T', 'n', 'T', 't', 'T', 'r', 'T', 'y', 'T', 'd', 'T', 'a', 'T', 'y', 'T', '.', 'T', 'o', 'T', 'r', 'T', 'g', 'C', '128,503', 'C', '-14,29', 'C', '60,-2', 'T', 'C', 'T', 'D', 'T', 'a', 'T', 'y', 'T', '2', 'T', '5', 'T', '2', 'T', '2', 'T', '8', 'T', '!', 'C', '43,75', 'C', '93,535']"))
-conn.commit()
-cursor.close()
-conn.close()
-print("wrote")
-#-----------------------------------
-
-def read_db(IP):
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM api')
-    al = cursor.fetchall()
-    dicti=[dict(row) for row in al]
-    reun=[]
-    for dic in dicti:
-        if dic["IP"]==IP:
-            reun.append(dic["IP"])
-            reun.append(dic["WORKING"])
-            reun.append(dic["STATUS"])
-            reun.append(dic['ALIST'])
-    cursor.close()
-    conn.close()
-    return(reun)
 def write_db(IP, column, insert):
     done=False
     while not done:
@@ -51,8 +25,7 @@ def write_db(IP, column, insert):
             done=False
 def findstatus(IP, actionlst):
     print("started")
-    #actionlist=eval(eval(actionlst))
-    actionlist=eval(actionlst)
+    actionlist=eval(eval(actionlst))
     options = Options()
     options.add_argument("--headless=new")
     options.add_argument("--disable-gpu")
@@ -94,21 +67,7 @@ def findstatus(IP, actionlst):
         #check for upcoming assingments
         if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
             print("url==teams")
-            #---------------------------------------------------------------------------------------------------------------------------------
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
-            #time.sleep(15)
-            #img=driver.get_screenshot_as_png()
-            #pil=Image.open(io.BytesIO(img))
-            #pil=pil.resize((1000,1000))
-            #pil.save("image1.png", format='PNG')
-            #driver.refresh()
-            #time.sleep(15)
-            #img=driver.get_screenshot_as_png()
-            #pil=Image.open(io.BytesIO(img))
-            #pil=pil.resize((1000,1000))
-            #pil.save("image2.png", format='PNG')
-            #---------------------------------------------------------------------------------------------------------------------------------
-
             WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
             driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
             print("waited for iframe")
