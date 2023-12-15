@@ -84,13 +84,17 @@ def getstatus():
     with app.app_context():
         try:
             db=get_db()
-            cursor = db.execute('SELECT * FROM api')
-            al=cursor.fetchall()
+            data = data.execute('SELECT * FROM api')
+            al=data.fetchall()
             dicti=[dict(row) for row in al]
             for dic in dicti:
                 if dic["IP"]==request.remote_addr:
                     if dic["WORKING"]=="done":
-                        return(dic["STATUS"])
+                        retun=dic["STATUS"]
+                        curs=db.cursor()
+                        curs.execute('DELETE FROM al WHERE IP = ?', (dic["IP"],))
+                        db.commit()
+                        return(retun)
         except:
             return("waiting")
         return("waiting")
