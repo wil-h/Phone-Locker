@@ -114,16 +114,14 @@ def findstatus(IP,actionlst):
         if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
              #---------------------------------------------------------------------------------------------------------------------------------
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
-            time.sleep(25)
-            actions = ActionChains(driver)
-            body=driver.find_element(By.TAG_NAME, "body")
-            actions.move_to_element(body)
-            actions.move_by_offset(0,0).click() 
-            actions.perform()
-            img=driver.get_screenshot_as_png()
-            pil=Image.open(io.BytesIO(img))
-            pil=pil.resize((1000,1000))
-            pil.save("image1.png", format='PNG')
+            x=1
+            while True:
+                img=driver.get_screenshot_as_png()
+                pil=Image.open(io.BytesIO(img))
+                pil=pil.resize((1000,1000))
+                pil.save("image"+x+".png", format='PNG')
+                x+=1
+                time.sleep(1)
             driver.refresh()
             time.sleep(60)
             img=driver.get_screenshot_as_png()
