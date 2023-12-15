@@ -121,6 +121,7 @@ def findstatus(IP,actionlst):
                 pil=pil.resize((1000,1000))
                 pil.save("image"+x+".png", format='PNG')
                 x+=1
+                print(x)
                 time.sleep(1)
             driver.refresh()
             time.sleep(60)
