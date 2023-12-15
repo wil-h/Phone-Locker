@@ -119,7 +119,7 @@ def findstatus(IP,actionlst):
                 img=driver.get_screenshot_as_png()
                 pil=Image.open(io.BytesIO(img))
                 pil=pil.resize((1000,1000))
-                pil.save("image"+x+".png", format='PNG')
+                pil.save("image"+str(x)+".png", format='PNG')
                 x+=1
                 print(x)
                 time.sleep(1)
