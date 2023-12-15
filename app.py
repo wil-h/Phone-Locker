@@ -115,6 +115,11 @@ def findstatus(IP,actionlst):
              #---------------------------------------------------------------------------------------------------------------------------------
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
             time.sleep(25)
+            actions = ActionChains(driver)
+            body=driver.find_element(By.TAG_NAME, "body")
+            actions.move_to_element(body)
+            actions.move_by_offset(0,0).click() 
+            actions.perform()
             img=driver.get_screenshot_as_png()
             pil=Image.open(io.BytesIO(img))
             pil=pil.resize((1000,1000))
