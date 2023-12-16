@@ -96,6 +96,7 @@ def getstatus():
                         db.commit()
                         return(retun)
         except Exception as e:
+            print("error:",e)
             return("waiting")
         return("waiting")
 
