@@ -96,7 +96,8 @@ def getstatus():
                         curs.execute('DELETE FROM al WHERE IP = ?', (dic["IP"]))
                         db.commit()
                         return(retun)
-        except:
+        except Exception as e:
+            print("error:",e)
             return("waiting")
         return("waiting")
 
