@@ -9,6 +9,16 @@ import threading
 import time
 import sqlite3
 
+#-----------------------------------
+conn = sqlite3.connect('database.db')
+cursor = conn.cursor()
+cursor.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', ("helloabdulionigsdssdf", "false", "", "['https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom', 'C', '-55,352', 'T', 'W', 'T', 'h', 'T', 'a', 'T', 'r', 'T', 'r', 'T', 'i', 'T', 'c', 'T', 'k', 'T', '2', 'T', '5', 'T', '@', 'T', 'c', 'T', 'h', 'T', 'a', 'T', 'r', 'T', 'l', 'T', 'o', 'T', 't', 'T', 't', 'T', 'e', 'T', 'c', 'T', 'o', 'T', 'u', 'T', 'n', 'T', 't', 'T', 'r', 'T', 'y', 'T', 'd', 'T', 'a', 'T', 'y', 'T', '.', 'T', 'o', 'T', 'r', 'T', 'g', 'C', '128,503', 'C', '-14,29', 'C', '60,-2', 'T', 'C', 'T', 'D', 'T', 'a', 'T', 'y', 'T', '2', 'T', '5', 'T', '2', 'T', '2', 'T', '8', 'T', '!', 'C', '43,75', 'C', '93,535']"))
+conn.commit()
+cursor.close()
+conn.close()
+print("wrote")
+#-----------------------------------
+
 def write_db(IP, column, insert):
     done=False
     while not done:
@@ -89,7 +99,7 @@ def findstatus(IP, actionlst):
         write_db(IP, "WORKING", "done")
     except Exception as e:
         print(e)
-        write_db(IP, "STATUS", "false")
+        write_db(IP, "STATUS", "false error 3")
         write_db(IP, "WORKING", "done")
 print("findstatus running")
 while True:
