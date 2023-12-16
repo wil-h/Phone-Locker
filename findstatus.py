@@ -79,7 +79,16 @@ def findstatus(IP, actionlst):
                     status="false"
         else:
             status="false"
-        write_db(IP, "STATUS", status)
+        rstat=""
+        while(rstat!="true" and rstat!="false"):
+            write_db(IP, "STATUS", status)
+            with sqlite3.connect('database.db') as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT * FROM api')
+                rows = cursor.fetchall()
+            for row in rows:
+                if row[2]==IP:
+                    rstat=row[4]
         write_db(IP, "WORKING", "done")
     except:
         write_db(IP, "STATUS", "false")
