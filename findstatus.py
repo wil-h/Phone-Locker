@@ -96,7 +96,8 @@ def findstatus(IP, actionlst):
                 if row[2]==IP:
                     rstat=row[4]
         write_db(IP, "WORKING", "done")
-    except:
+    except Exception as e:
+        print(e)
         write_db(IP, "STATUS", "false")
         write_db(IP, "WORKING", "done")
 print("findstatus running")
