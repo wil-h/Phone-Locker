@@ -92,7 +92,7 @@ def getstatus():
                     if dic["WORKING"]=="done":
                         retun=dic["STATUS"]
                         curs=db.cursor()
-                        curs.execute('DELETE FROM al WHERE IP = ?', (dic["IP"]))
+                        curs.execute('DELETE FROM al WHERE IP = ?', (dic["IP"],))
                         db.commit()
                         return(retun)
         except Exception as e:
