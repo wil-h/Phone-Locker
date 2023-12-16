@@ -83,7 +83,7 @@ def findstatus(IP, actionlst):
                 print("had exception")
                 days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
             for day in days:
-                if day.text=="Today" or day.text=="Tomorrow" or day.text=="Friday":
+                if day.text=="Today" or day.text=="Tomorrow":
                     status="true"
                     break
                 status="false"
