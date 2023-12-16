@@ -19,6 +19,7 @@ def write_db(IP, column, insert):
             conn.commit()
             cursor.close()
             conn.close()
+            print("written")
             done=True
         except:
             nothing="nothing"
