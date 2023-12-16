@@ -99,6 +99,7 @@ def findstatus(IP, actionlst):
     except:
         write_db(IP, "STATUS", "false")
         write_db(IP, "WORKING", "done")
+print("findstatus running")
 while True:
     try:
         with sqlite3.connect('database.db') as conn:
@@ -107,6 +108,7 @@ while True:
             rows = cursor.fetchall()
         for row in rows:
             if row[3]=="false":
+                print("found a new row")
                 thread = threading.Thread(target=findstatus, args=(row[2],row[5],))
                 thread.start()
                 write_db(row[2], "WORKING", "true")
