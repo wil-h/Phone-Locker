@@ -25,6 +25,7 @@ def write_db(IP, column, insert):
             done=False
 def findstatus(IP, actionlst):
     try:
+        print("started")
         actionlist=eval(eval(actionlst))
         options = Options()
         options.add_argument("--headless=new")
@@ -53,32 +54,37 @@ def findstatus(IP, actionlst):
                 body=driver.find_element(By.TAG_NAME, "body")
                 actions.move_to_element(body)
                 l=actionlist[x+1].split(',')
+                print(l)
                 actions.move_by_offset(l[0],l[1]).click() 
                 actions.perform()
                 WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
                 time.sleep(4)
+        print("waiting")
         time.sleep(15)
+        print("waited")
         if driver.current_url==ur_l:
             #check for upcoming assingments
             if ur_l=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom":
                 WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
                 WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
+                print("waited for iframe")
                 driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
                 time.sleep(5)
                 days=[]
                 try:
                     WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME, "date-group-label-shorthand__pjq0w")))
+                    print("waited for days")
                     days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
                 except:
-                    status="false"
-                    days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
+                    status="false error 1"
+                    days=[]
                 for day in days:
                     if day.text=="Today" or day.text=="Tomorrow":
                         status="true"
                         break
-                    status="false"
+                    status="false truly"
         else:
-            status="false"
+            status="false error 2"
         rstat=""
         while(rstat!="true" and rstat!="false"):
             write_db(IP, "STATUS", status)
@@ -108,4 +114,3 @@ while True:
         time.sleep(1)    
     except Exception as e:
         print(e)
-        nothing="nothing"
