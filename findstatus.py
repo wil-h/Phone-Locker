@@ -36,7 +36,8 @@ def write_db(IP, column, insert):
 def findstatus(IP, actionlst):
     try:
         print("started")
-        actionlist=eval(eval(actionlst))
+        #actionlist=eval(eval(actionlst))
+        actionlist=eval(actionlst)
         options = Options()
         options.add_argument("--headless=new")
         options.add_argument("--disable-gpu")
