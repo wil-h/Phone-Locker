@@ -76,6 +76,14 @@ def close_db(error):
 @app.route('/api/startstatus', methods=['POST'])
 def startstatus():
     actionlst=request.data.decode('utf-8')
+    try:
+        db=get_db()
+        curs=db.cursor()
+        curs.execute('DELETE FROM api WHERE IP = ?', (request.remote_addr,))
+        db.commit()
+        print("preexisting db deleted")
+    except:
+        print("no prexistingdb")
     db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.remote_addr,"false","",actionlst))
     db.commit()
     return("started")
