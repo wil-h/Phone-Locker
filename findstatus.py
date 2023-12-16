@@ -82,18 +82,19 @@ def findstatus(IP, actionlst):
                 driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
                 time.sleep(5)
                 days=[]
-                try:
-                    print("waiting for days")
-                    time.sleep(10)
-                    print("refreshing")
-                    driver.refresh()
-                    print(refreshed)
-                    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, "date-group-label-shorthand__pjq0w")))
-                    print("waited for days")
-                    days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
-                except:
-                    status="false error 1"
-                    days=[]
+                
+                print("waiting for days")
+                time.sleep(10)
+                print("refreshing")
+                driver.refresh()
+                print("refreshed")
+                WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//iframe[@title='Assignments Tab View']")))
+                print("waited for iframe")
+                driver.switch_to.frame(driver.find_element(By.XPATH, "//iframe[@title='Assignments Tab View']"))
+                WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, "date-group-label-shorthand__pjq0w")))
+                print("waited for days")
+                days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
+                
                 for day in days:
                     if day.text=="Today" or day.text=="Tomorrow":
                         status="true"
