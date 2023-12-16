@@ -94,6 +94,7 @@ def getstatus():
                         curs=db.cursor()
                         curs.execute('DELETE FROM api WHERE IP = ?', (dic["IP"],))
                         db.commit()
+                        print("deleted from db")
                         return(retun)
         except Exception as e:
             return("waiting")
