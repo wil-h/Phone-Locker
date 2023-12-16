@@ -84,7 +84,7 @@ def getstatus():
     with app.app_context():
         try:
             db=get_db()
-            data = data.execute('SELECT * FROM api')
+            data = db.execute('SELECT * FROM api')
             al=data.fetchall()
             dicti=[dict(row) for row in al]
             for dic in dicti:
