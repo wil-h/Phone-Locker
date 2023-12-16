@@ -83,6 +83,7 @@ def findstatus(IP, actionlst):
                 time.sleep(5)
                 days=[]
                 try:
+                    print("waiting for days")
                     WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME, "date-group-label-shorthand__pjq0w")))
                     print("waited for days")
                     days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
