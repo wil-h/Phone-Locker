@@ -91,8 +91,9 @@ def getstatus():
                 if dic["IP"]==request.remote_addr:
                     if dic["WORKING"]=="done":
                         retun=dic["STATUS"]
+                        print(retun)
                         curs=db.cursor()
-                        curs.execute('DELETE FROM al WHERE IP = ?', (dic["IP"],))
+                        curs.execute('DELETE FROM al WHERE IP = ?', (dic["IP"]))
                         db.commit()
                         return(retun)
         except:
