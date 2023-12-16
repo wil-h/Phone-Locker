@@ -84,10 +84,10 @@ def findstatus(IP, actionlst):
                 days=[]
                 try:
                     print("waiting for days")
-                    #time.sleep(10)
-                    #print("refreshing")
-                    #driver.refresh()
-                    #print(refreshed)
+                    time.sleep(10)
+                    print("refreshing")
+                    driver.refresh()
+                    print(refreshed)
                     WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, "date-group-label-shorthand__pjq0w")))
                     print("waited for days")
                     days=driver.find_elements(By.CLASS_NAME, "date-group-label-shorthand__pjq0w")
@@ -103,6 +103,7 @@ def findstatus(IP, actionlst):
             status="false error 2"
         write_db(IP, "STATUS", status)
         write_db(IP, "WORKING", "done")
+        print(status)
     except Exception as e:
         print(e)
         write_db(IP, "STATUS", "false error 3")
