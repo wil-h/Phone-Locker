@@ -204,7 +204,7 @@ def selenium(IP):
     try:
         #load first page
         driver.get(url)
-        driver.set_window_size(1000, 1000)
+        driver.set_window_size(750, 750)
         actions = ActionChains(driver)
         while(driver.current_url==url):
             time.sleep(0.1)
@@ -304,25 +304,25 @@ def selenium(IP):
                                 actions.move_to_element(body)
                                 actions.move_by_offset(-1,0).click() 
                                 actions.perform()
-                                xdim=480
+                                xdim=365
                             except:
-                                xdim=960
+                                xdim=730
                             try:
                                 body=driver.find_element(By.TAG_NAME, "body")
                                 actions.move_to_element(body)
                                 actions.move_by_offset(0,-1).click() 
                                 actions.perform()
-                                ydim=430
+                                ydim=305
                             except:
-                                ydim=860
-                        if xdim==480:
-                            x=round(int(eval(action[0])[1])/1000*960-480)
-                        if xdim==960:
-                            x=round(int(eval(action[0])[1])/1000*960)
-                        if ydim==430:
-                            y=round(int(eval(action[0])[2])/1000*860-430)  
-                        if ydim==860:
-                            y=round(int(eval(action[0])[2])/1000*860)  
+                                ydim=610
+                        if xdim==365:
+                            x=round(int(eval(action[0])[1])/1000*730-365)
+                        if xdim==730:
+                            x=round(int(eval(action[0])[1])/1000*730)
+                        if ydim==305:
+                            y=round(int(eval(action[0])[2])/1000*610-305)  
+                        if ydim==610:
+                            y=round(int(eval(action[0])[2])/1000*610)  
                         body=driver.find_element(By.TAG_NAME, "body")
                         actions.move_to_element(body)
                         actions.move_by_offset(x,y).click() 
