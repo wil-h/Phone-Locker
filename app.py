@@ -132,7 +132,24 @@ def search():
         except Exception as e:
             return("none")
         return("none")
-
+@app.route("/api/writedb", methods=["POST"])
+def write_info():
+    data = request.form
+    IP=data.get("IP")
+    status=data.get("status")
+    done=False
+    while not done:
+        try:
+            db=get_db()
+            curs=db.cursor()
+            curs.execute("UPDATE api SET STATUS = ? WHERE IP = ?", (status, IP))
+            db.commit()
+            curs=db.cursor()
+            curs.execute("UPDATE api SET WORKING = ? WHERE IP = ?", ("done", IP))
+            db.commit()
+        except:
+            done=False
+    return("done")
 @app.route('/api/setup', methods=['GET'])
 def api_data():
     try:
