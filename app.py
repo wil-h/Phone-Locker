@@ -78,11 +78,16 @@ def startstatus():
     actionlst=request.data.decode('utf-8')
     db=get_db()
     curs=db.cursor()
-    curs.execute('DELETE FROM api WHERE IP = ?', (request.remote_addr,))
-    db.commit()
-    print("preexisting rows deleted")
-    db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.remote_addr,"false","",actionlst))
-    db.commit()    
+    curs.execute("SELECT * FROM api WHERE IP = ?", (request.remote_addr,))
+    row=curs.fetchone()
+    if row:
+        curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("false",request.remote_addr,))
+        curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', (actionlst,request.remote_addr,))
+        db.commit()
+    else:
+        db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.remote_addr,"false","",actionlst))
+        db.commit()
+    print("created/updated row")    
     return("started")
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
@@ -97,7 +102,8 @@ def getstatus():
                     if dic["WORKING"]=="done":
                         retun=dic["STATUS"]
                         curs=db.cursor()
-                        curs.execute('DELETE FROM api WHERE IP = ?', (dic["IP"],))
+                        curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",dic["IP"],))
+                        curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic["IP"],))
                         db.commit()
                         print("deleted from db")
                         return(retun)
@@ -158,7 +164,7 @@ def api_data():
                 if dic["IP"]==request.remote_addr:
                     retun=dic["action_list"]
                     curs=db.cursor()
-                    curs.execute('DELETE FROM al WHERE IP = ?', (dic["IP"],))
+                    curs.execute('UPDATE al SET action_list = ? WHERE IP = ?', ("",dic["IP"],))
                     db.commit()
                     return jsonify(retun)
     except:
