@@ -82,13 +82,7 @@ def startstatus():
     db.commit()
     print("preexisting rows deleted")
     db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.remote_addr,"false","",actionlst))
-    db.commit()
-
-    data = db.execute('SELECT * FROM api')
-    al=data.fetchall()
-    dicti=[dict(row) for row in al]
-    print("dic:",dicti)
-    
+    db.commit()    
     return("started")
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
@@ -129,7 +123,9 @@ def search():
                     retun.append(dic["STATUS"])
                     retun.append(dic["ALIST"])
                     return(str(retun))
+            print("nothing to return to request")
         except Exception as e:
+            print(e)
             return("none")
         return("none")
 @app.route("/api/writedb", methods=["POST"])
