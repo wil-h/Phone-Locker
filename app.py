@@ -105,6 +105,13 @@ def getstatus():
                         curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",dic["IP"],))
                         curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic["IP"],))
                         db.commit()
+
+                        db=get_db()
+                        curs=db.cursor()
+                        curs.execute("SELECT * FROM api WHERE IP = ?", (request.remote_addr,))
+                        row=curs.fetchone()
+                        print("row")
+                        
                         print("deleted from db")
                         return(retun)
         except Exception as e:
