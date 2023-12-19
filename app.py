@@ -78,8 +78,8 @@ def startstatus():
     actionlst=request.data.decode('utf-8')
     db=get_db()
     curs=db.cursor()
-    curs.execute("SELECT * FROM api WHERE IP = ?", (request.remote_addr,))
-    row=curs.fetchone()
+    data = db.execute('SELECT * FROM api')
+    row=data.fetchall()
     if row:
         curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("false",request.remote_addr,))
         curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', (actionlst,request.remote_addr,))
