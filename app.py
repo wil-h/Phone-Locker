@@ -76,10 +76,13 @@ def close_db(error):
 @app.route('/api/startstatus', methods=['POST'])
 def startstatus():
     actionlst=request.data.decode('utf-8')
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM api WHERE IP = ?', (request.remote_addr,))    
+    conn.commit()
+    cursor.close()
+    conn.close()
     db=get_db()
-    curs=db.cursor()
-    curs.execute('DELETE FROM api WHERE IP = ?', (request.remote_addr,))
-    db.commit()
     print("preexisting rows deleted")
     db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.remote_addr,"false","",actionlst))
     db.commit()    
@@ -157,9 +160,12 @@ def api_data():
             for dic in alist:
                 if dic["IP"]==request.remote_addr:
                     retun=dic["action_list"]
-                    curs=db.cursor()
-                    curs.execute('DELETE FROM al WHERE IP = ?', (request.remote_addr,))
-                    db.commit()
+                    conn = sqlite3.connect('database.db')
+                    cursor = conn.cursor()
+                    cursor.execute('DELETE FROM api WHERE IP = ?', (request.remote_addr,))    
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
                     return jsonify(retun)
     except:
         return jsonify("none")
