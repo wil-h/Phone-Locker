@@ -99,9 +99,12 @@ def getstatus():
                 if dic["IP"]==request.remote_addr:
                     if dic["WORKING"]=="done":
                         retun=dic["STATUS"]
-                        curs=db.cursor()
-                        curs.execute('DELETE FROM api WHERE IP = ?', (dic["IP"],))
-                        db.commit()
+                        conn = sqlite3.connect('database.db')
+                        cursor = conn.cursor()
+                        cursor.execute('DELETE FROM api WHERE IP = ?', (request.remote_addr,))    
+                        conn.commit()
+                        cursor.close()
+                        conn.close()
                         print("deleted from db")
                         return(retun)
         except Exception as e:
@@ -162,7 +165,7 @@ def api_data():
                     retun=dic["action_list"]
                     conn = sqlite3.connect('database.db')
                     cursor = conn.cursor()
-                    cursor.execute('DELETE FROM api WHERE IP = ?', (request.remote_addr,))    
+                    cursor.execute('DELETE FROM al WHERE IP = ?', (request.remote_addr,))    
                     conn.commit()
                     cursor.close()
                     conn.close()
