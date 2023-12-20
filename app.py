@@ -111,7 +111,7 @@ def getstatus():
             dicti=[dict(row) for row in al]
             for dic in dicti:
                 if dic["IP"]==request.remote_addr:
-                    if dic["WORKING"]=="done":
+                    if dic["WORKING"]=="done" and dic["ALIST"]!='':
                         retun=dic["STATUS"]
                         curs=db.cursor()
                         curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",dic["IP"],))
