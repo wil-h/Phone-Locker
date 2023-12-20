@@ -82,6 +82,8 @@ def startstatus():
     row=data.fetchall()
     if row:
         curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("false",request.remote_addr,))
+        db.commit()
+        db=get_db()
         curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', (actionlst,request.remote_addr,))
         db.commit()
     else:
@@ -103,15 +105,10 @@ def getstatus():
                         retun=dic["STATUS"]
                         curs=db.cursor()
                         curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",dic["IP"],))
-                        curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic["IP"],))
                         db.commit()
-
                         db=get_db()
-                        curs=db.cursor()
-                        curs.execute("SELECT * FROM api WHERE IP = ?", (request.remote_addr,))
-                        row=curs.fetchone()
-                        print("row:"+str(row))
-                        
+                        curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic["IP"],))
+                        db.commit()                        
                         print("deleted from db")
                         return(retun)
         except Exception as e:
