@@ -89,7 +89,6 @@ def startstatus():
     data = db.execute('SELECT * FROM api')
     row=data.fetchall()
     if row:
-        print("row:"+str([dict(k) for k in row]))
         curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("false",request.remote_addr,))
         db.commit()
         db=get_db()
@@ -112,6 +111,11 @@ def getstatus():
             for dic in dicti:
                 if dic["IP"]==request.remote_addr:
                     if dic["WORKING"]=="done" and dic["ALIST"]!='':
+                        db=get_db()
+                        curs=db.cursor()
+                        data = db.execute('SELECT * FROM api')
+                        row=data.fetchall()
+                        print("row:"+str([dict(k) for k in row]))
                         retun=dic["STATUS"]
                         curs=db.cursor()
                         curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",dic["IP"],))
