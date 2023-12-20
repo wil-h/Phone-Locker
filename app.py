@@ -110,7 +110,7 @@ def getstatus():
                         curs=db.cursor()
                         curs.execute("SELECT * FROM api WHERE IP = ?", (request.remote_addr,))
                         row=curs.fetchone()
-                        print("row")
+                        print("row:"+str(row))
                         
                         print("deleted from db")
                         return(retun)
