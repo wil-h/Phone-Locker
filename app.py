@@ -89,7 +89,7 @@ def startstatus():
     data = db.execute('SELECT * FROM api')
     row=data.fetchall()
     if row:
-        print("row")
+        print("row:"+str([dict(k) for k in row]))
         curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("false",request.remote_addr,))
         db.commit()
         db=get_db()
