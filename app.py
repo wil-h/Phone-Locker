@@ -89,12 +89,14 @@ def startstatus():
     data = db.execute('SELECT * FROM api')
     row=data.fetchall()
     if row:
+        print("row")
         curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("false",request.remote_addr,))
         db.commit()
         db=get_db()
         curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', (actionlst,request.remote_addr,))
         db.commit()
     else:
+        print("not row")
         db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.remote_addr,"false","",actionlst))
         db.commit()
     print("created/updated row")    
