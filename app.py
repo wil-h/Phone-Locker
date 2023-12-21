@@ -120,6 +120,8 @@ def getstatus():
                         curs=db.cursor()
                         curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",dic["IP"],))
                         db.commit()
+                        print("waiting")
+                        time.sleep(20)
                         db=get_db()
                         curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic["IP"],))
                         db.commit()                        
