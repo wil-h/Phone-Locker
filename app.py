@@ -76,7 +76,7 @@ def close_db(error):
 @app.route('/api/view')
 def see():
     db=get_db()
-    cursor = db.execute('SELECT * FROM al')
+    cursor = db.execute('SELECT * FROM api')
     al=cursor.fetchall()
     alist=[dict(row) for row in al]
     return(str(alist))
