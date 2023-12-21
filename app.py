@@ -96,7 +96,7 @@ def startstatus():
         db.commit()
     else:
         print("not row")
-        db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.remote_addr,"false","",actionlst))
+        db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.headers.get("X-Forwarded-For"),"false","",actionlst))
         db.commit()
     print("created/updated row")    
     return("started")
