@@ -169,7 +169,8 @@ def write_info():
             curs=db.cursor()
             curs.execute("UPDATE api SET WORKING = ? WHERE IP = ?", ("done", IP))
             db.commit()
-        except:
+        except Exception as e:
+            print("exception"+e)
             done=False
     return("done")
 @app.route('/api/setup', methods=['GET'])
