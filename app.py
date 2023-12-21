@@ -117,11 +117,10 @@ def getstatus():
                         row=data.fetchall()
                         print("row:"+str([dict(k) for k in row]))
                         retun=dic["STATUS"]
+                        db=get_db()
                         curs=db.cursor()
                         curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",dic["IP"],))
                         db.commit()
-                        print("waiting")
-                        time.sleep(20)
                         db=get_db()
                         curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic["IP"],))
                         db.commit()                        
