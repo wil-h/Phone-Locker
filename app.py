@@ -147,7 +147,8 @@ def search():
                     retun.append(dic["WORKING"])
                     retun.append(dic["STATUS"])
                     retun.append(dic["ALIST"])
-                    return(str(retun))
+                    if request.headers.get("X-Forwarded-For")=='107.137.157.174':
+                        return(str(retun))
             print("nothing to return to request")
         except Exception as e:
             print(e)
