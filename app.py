@@ -127,6 +127,7 @@ def getstatus():
                         print("deleted from db")
                         return(retun)
         except Exception as e:
+            print(e)
             return("waiting")
         return("waiting")
 @app.route('/api/startprocess', methods=['GET'])
