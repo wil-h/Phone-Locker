@@ -103,14 +103,26 @@ def startstatus():
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
     with app.app_context():
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        data=conn.execute('SELECT * FROM api')
-        row=data.fetchall()
-        print("row:"+str(row))
-        #conn.commit()
-        cursor.close()
-        conn.close()
+        try:
+            conn = sqlite3.connect('database.db')
+            cursor = conn.cursor()
+            data=conn.execute('SELECT * FROM api')
+            db=data.fetchall()
+            status="waiting"
+            for tuple in db:
+                if tuple[2]==request.headers.get("X-Forwarded-For"):
+                    if tuple[3]=="done" and tuple[5]!='':
+                        status=tuple[4]
+                        cursor.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",tuple[2],))
+                        cursor.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",tuple[2],))
+                        conn.commit()
+                        break
+            cursor.close()
+            conn.close()
+            return(status)
+        except Exception as e:
+            print(e)
+            return("waiting")
         #try:
         #    db=get_db()
         #    data = db.execute('SELECT * FROM api')
@@ -137,7 +149,6 @@ def getstatus():
         #except Exception as e:
         #    print(e)
         #    return("waiting")
-        return("waiting")
 @app.route('/api/startprocess', methods=['GET'])
 def search():
     with app.app_context():
