@@ -105,20 +105,21 @@ def getstatus():
     time.sleep(2.5)
     with app.app_context():
         try:
-            db=eval(see())
+            conn = sqlite3.connect('database.db')
+            cursor = conn.cursor()
+            data=conn.execute('SELECT * FROM api')
+            db=data.fetchall()
             status="waiting"
             for tuple in db:
                 if tuple[2]==request.headers.get("X-Forwarded-For"):
                     if tuple[3]=="done" and tuple[5]!='':
                         status=tuple[4]
-                        conn = sqlite3.connect('database.db')
-                        cursor = conn.cursor()
                         cursor.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",tuple[2],))
                         cursor.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",tuple[2],))
                         conn.commit()
-                        cursor.close()
-                        conn.close()
                         break
+            cursor.close()
+            conn.close()
             return(status)
         except Exception as e:
             print(e)
