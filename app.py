@@ -14,6 +14,7 @@ import numpy as np
 import threading
 import tempfile
 import time
+import urllib3
 import os   
 import logging
 import sqlite3
@@ -73,7 +74,7 @@ def close_db(error):
         db.close()
 
 
-@app.route('/api/view')
+@app.route('/api/view', methods=['GET'])
 def see():
     db=get_db()
     cursor = db.execute('SELECT * FROM api')
@@ -102,28 +103,27 @@ def startstatus():
     return("started")
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
-    #time.sleep(2.5)
-    #with app.app_context():
-     #   try:
-     #       conn = sqlite3.connect('database.db')
-     #       cursor = conn.cursor()
-     #       data=conn.execute('SELECT * FROM api')
-     #       db=data.fetchall()
-     #       status="waiting"
-     #       for tuple in db:
-     #           if tuple[2]==request.headers.get("X-Forwarded-For"):
-     #               if tuple[3]=="done" and tuple[5]!='':
-     #                   status=tuple[4]
-     #                   cursor.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",tuple[2],))
-     #                   cursor.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",tuple[2],))
-     #                   conn.commit()
-     #                   break
-     #       cursor.close()
-     #       conn.close()
-     #       return(status)
-     #   except Exception as e:
-     #       print(e)
-    return("waiting")
+    time.sleep(2.5)
+    with app.app_context():
+        try:
+            http = urllib3.PoolManager()
+            new = str(http.request('GET', "http://23.92.30.111/api/view").data)
+            db=eval(new)
+            status="waiting"
+            for tuple in db:
+                if tuple[2]==request.headers.get("X-Forwarded-For"):
+                    if tuple[3]=="done" and tuple[5]!='':
+                        status=tuple[4]
+                        cursor.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",tuple[2],))
+                        cursor.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",tuple[2],))
+                        conn.commit()
+                        break
+            cursor.close()
+            conn.close()
+            return(status)
+        except Exception as e:
+            print(e)
+            return("waiting")
         #try:
         #    db=get_db()
         #    data = db.execute('SELECT * FROM api')
