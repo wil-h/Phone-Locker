@@ -102,6 +102,7 @@ def startstatus():
     return("started")
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
+    time.sleep(2.5)
     with app.app_context():
         try:
             conn = sqlite3.connect('database.db')
