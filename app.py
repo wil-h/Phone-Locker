@@ -108,18 +108,20 @@ def getstatus():
         try:
             http = urllib3.PoolManager()
             new = str(http.request('GET', "http://23.92.30.111/api/view").data)
-            db=eval(new)
+            db=eval(eval(new))
             status="waiting"
-            for tuple in db:
-                if tuple[2]==request.headers.get("X-Forwarded-For"):
-                    if tuple[3]=="done" and tuple[5]!='':
-                        status=tuple[4]
-                        cursor.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",tuple[2],))
-                        cursor.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",tuple[2],))
+            for dic in db:
+                if dic['IP']==request.headers.get("X-Forwarded-For"):
+                    if dic['WORKING']=="done" and dic['ALIST']!='':
+                        status=dic['STATUS']
+                        conn = sqlite3.connect('database.db')
+                        cursor = conn.cursor()
+                        cursor.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",dic['IP'],))
+                        cursor.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic['IP'],))
                         conn.commit()
+                        cursor.close()
+                        conn.close()
                         break
-            cursor.close()
-            conn.close()
             return(status)
         except Exception as e:
             print(e)
