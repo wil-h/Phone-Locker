@@ -13,7 +13,8 @@ while True:
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute('DELETE FROM api WHERE ALIST = ?',('',))
+        #cursor.execute('DELETE FROM api WHERE ALIST = ?',('',))
+        cursor.execute('DELETE FROM api WHERE IP = ?',('107.137.157.174',))
         conn.commit()
         cursor.close()
         conn.close()
