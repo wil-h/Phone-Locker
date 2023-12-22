@@ -13,12 +13,10 @@ while True:
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        #cursor.execute('DELETE FROM api WHERE ALIST = ?',('',))
-        cursor.execute('DELETE FROM api WHERE IP = ?',('107.137.157.174',))
+        cursor.execute('DELETE FROM api WHERE ALIST = ?',('',))
         conn.commit()
         cursor.close()
         conn.close()
-        print("deleted")
         time.sleep(2)
     except Exception as e:
         print(e)
