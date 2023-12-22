@@ -107,7 +107,7 @@ def getstatus():
         cursor = conn.cursor()
         data=conn.execute('SELECT * FROM api')
         row=data.fetchall()
-        print("row:"+str([dict(k) for k in row]))
+        print("row:"+str(row))
         #conn.commit()
         cursor.close()
         conn.close()
