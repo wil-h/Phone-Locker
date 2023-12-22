@@ -105,7 +105,7 @@ def getstatus():
     time.sleep(2.5)
     with app.app_context():
         try:
-            db=see()
+            db=eval(see())
             status="waiting"
             for tuple in db:
                 if tuple[2]==request.headers.get("X-Forwarded-For"):
