@@ -87,7 +87,7 @@ def startstatus():
     actionlst=request.data.decode('utf-8')
     db=get_db()
     curs=db.cursor()
-    data = db.execute('SELECT * FROM api')
+    data = db.execute('SELECT * FROM api WHERE IP = ?',(request.headers.get("X-Forwarded-For"),))
     row=data.fetchall()
     if row:
         curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("false",request.headers.get("X-Forwarded-For"),))
@@ -103,55 +103,32 @@ def startstatus():
     return("started")
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
-    time.sleep(2.5)
-    with app.app_context():
         try:
-            http = urllib3.PoolManager()
-            new = str(http.request('GET', "http://23.92.30.111/api/view").data)
-            db=eval(eval(new))
-            status="waiting"
-            for dic in db:
-                if dic['IP']==request.headers.get("X-Forwarded-For"):
-                    if dic['WORKING']=="done" and dic['ALIST']!='':
-                        status=dic['STATUS']
-                        conn = sqlite3.connect('database.db')
-                        cursor = conn.cursor()
-                        cursor.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",dic['IP'],))
-                        cursor.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic['IP'],))
-                        conn.commit()
-                        cursor.close()
-                        conn.close()
-                        break
-            return(status)
+            db=get_db()
+            data = db.execute('SELECT * FROM api')
+            al=data.fetchall()
+            dicti=[dict(row) for row in al]
+            for dic in dicti:
+                if dic["IP"]==request.headers.get("X-Forwarded-For"):
+                    if dic["WORKING"]=="done" and dic["ALIST"]!='':
+                        db=get_db()
+                        curs=db.cursor()
+                        data = db.execute('SELECT * FROM api')
+                        row=data.fetchall()
+                        print("row:"+str([dict(k) for k in row]))
+                        retun=dic["STATUS"]
+                        db=get_db()
+                        curs=db.cursor()
+                        curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",dic["IP"],))
+                        db.commit()
+                        db=get_db()
+                        curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic["IP"],))
+                        db.commit()                        
+                        print("deleted from db")
+                        return(retun)
         except Exception as e:
             print(e)
             return("waiting")
-        #try:
-        #    db=get_db()
-        #    data = db.execute('SELECT * FROM api')
-        #    al=data.fetchall()
-        #    dicti=[dict(row) for row in al]
-        #    for dic in dicti:
-        #        if dic["IP"]==request.headers.get("X-Forwarded-For"):
-        #            if dic["WORKING"]=="done" and dic["ALIST"]!='':
-        #                db=get_db()
-        #                curs=db.cursor()
-        #                data = db.execute('SELECT * FROM api')
-        #                row=data.fetchall()
-        #                print("row:"+str([dict(k) for k in row]))
-        #                retun=dic["STATUS"]
-        #                db=get_db()
-        #                curs=db.cursor()
-        #                curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",dic["IP"],))
-        #                db.commit()
-        #                db=get_db()
-        #                curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic["IP"],))
-        #                db.commit()                        
-        #                print("deleted from db")
-        #                return(retun)
-        #except Exception as e:
-        #    print(e)
-        #    return("waiting")
 @app.route('/api/startprocess', methods=['GET'])
 def search():
     with app.app_context():
