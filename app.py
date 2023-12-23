@@ -84,6 +84,7 @@ def see():
 
 @app.route('/api/startstatus', methods=['POST'])
 def startstatus():
+    print("startstatus")
     actionlst=request.data.decode('utf-8')
     db=get_db()
     curs=db.cursor()
@@ -103,6 +104,7 @@ def startstatus():
     return("started")
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
+        print("getstatus")
         try:
             db=get_db()
             data = db.execute('SELECT * FROM api')
@@ -132,6 +134,7 @@ def getstatus():
         return("waiting")
 @app.route('/api/startprocess', methods=['GET'])
 def search():
+    print("startprocess")
     with app.app_context():
         try:
             db=get_db()
@@ -157,6 +160,7 @@ def search():
         return("none")
 @app.route("/api/writedb", methods=["POST"])
 def write_info():
+    print("writedb")
     data = request.form
     IP=data.get("IP")
     status=data.get("status")
