@@ -106,10 +106,17 @@ def getstatus():
     with open('db.txt', 'r') as file:
         content = file.read()
     list=content.split(',')
-    for x in range(0,len(list)-1,2):
+    for x in range(1,len(list)-1,2):
         IP=list[x]
         if IP==request.headers.get("X-Forwarded-For"):
             status=list[x+1]
+            removed=''
+            for y in range(1,x-1):
+                removed=removed+','+str(list[y])
+            for y in range(x+2,len(list-1)):
+                removed=removed+','+str(list[y])
+            with open('db.txt', 'w') as file:
+                file.write(str(removed))
             return(str(status))
     return("waiting")
 @app.route('/api/startprocess', methods=['GET'])
