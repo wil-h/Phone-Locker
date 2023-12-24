@@ -84,7 +84,6 @@ def see():
 
 @app.route('/api/startstatus', methods=['POST'])
 def startstatus():
-    print("startstatus")
     actionlst=request.data.decode('utf-8')
     db=get_db()
     curs=db.cursor()
@@ -95,14 +94,11 @@ def startstatus():
         curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', (actionlst,request.headers.get("X-Forwarded-For"),))
         db.commit()
     else:
-        print("not row")
         db.execute('INSERT INTO api (IP, ALIST) VALUES (?, ?)', (request.headers.get("X-Forwarded-For"), actionlst))
-        db.commit()
-    print("created/updated row")    
+        db.commit()   
     return("started")
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
-    print("getstatus")
     with open('db.txt', 'r') as file:
         content = file.read()
     list=content.split(',')
@@ -121,7 +117,6 @@ def getstatus():
     return("waiting")
 @app.route('/api/startprocess', methods=['GET'])
 def search():
-    print("startprocess")
     with app.app_context():
         try:
             db=get_db()
@@ -137,14 +132,11 @@ def search():
                 retun.append(dic["ALIST"])
                 if request.headers.get("X-Forwarded-For")=='107.137.157.174':
                     return(str(retun))
-            print("nothing to return to request")
         except Exception as e:
-            print(e)
             return("none")
         return("none")
 @app.route("/api/writedb", methods=["POST"])
 def write_info():
-    print("writedb")
     data = request.form
     IP=data.get("IP")
     status=data.get("status")
@@ -401,8 +393,8 @@ def selenium(IP):
                         done=True
                     except:
                         nothing="nothing"
-    except Exception as e:  
-        print(e)
+    except Exception as e:
+        nothing="nothing"
 #all this is still good for new method, just transferring data between two functions that need editing
 @app.route('/receive', methods=['POST'])
 def recieve():
