@@ -91,47 +91,27 @@ def startstatus():
     data = db.execute('SELECT * FROM api WHERE IP = ?',(request.headers.get("X-Forwarded-For"),))
     row=data.fetchall()
     if row:
-        curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("false",request.headers.get("X-Forwarded-For"),))
-        db.commit()
         db=get_db()
         curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', (actionlst,request.headers.get("X-Forwarded-For"),))
         db.commit()
     else:
         print("not row")
-        db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.headers.get("X-Forwarded-For"),"false","",actionlst))
+        db.execute('INSERT INTO api (IP, ALIST) VALUES (?, ?)', (request.headers.get("X-Forwarded-For"), actionlst))
         db.commit()
     print("created/updated row")    
     return("started")
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
-        print("getstatus")
-        try:
-            db=get_db()
-            data = db.execute('SELECT * FROM api')
-            al=data.fetchall()
-            dicti=[dict(row) for row in al]
-            for dic in dicti:
-                if dic["IP"]==request.headers.get("X-Forwarded-For"):
-                    if dic["WORKING"]=="done" and dic["ALIST"]!='':
-                        db=get_db()
-                        curs=db.cursor()
-                        data = db.execute('SELECT * FROM api')
-                        row=data.fetchall()
-                        print("row:"+str([dict(k) for k in row]))
-                        retun=dic["STATUS"]
-                        db=get_db()
-                        curs=db.cursor()
-                        curs.execute('UPDATE api SET WORKING = ? WHERE IP = ?', ("over",dic["IP"],))
-                        db.commit()
-                        db=get_db()
-                        curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic["IP"],))
-                        db.commit()                        
-                        print("deleted from db")
-                        return(retun)
-        except Exception as e:
-            print(e)
-            return("waiting")
-        return("waiting")
+    print("getstatus")
+    with open('db.txt', 'r') as file:
+        content = file.read()
+    list=content.split(',')
+    for x in range(0,len(list)-1,2):
+        IP=list[x]
+        if IP==request.headers.get("X-Forwarded-For"):
+            status=list[x+1]
+            return(str(status))
+    return("waiting")
 @app.route('/api/startprocess', methods=['GET'])
 def search():
     print("startprocess")
@@ -142,17 +122,14 @@ def search():
             al=data.fetchall()
             dicti=[dict(row) for row in al]
             for dic in dicti:
-                if dic["WORKING"]=="false":
-                    curs=db.cursor()
-                    curs.execute("UPDATE api SET WORKING = ? WHERE IP = ?", ("true", dic["IP"]))
-                    db.commit()
-                    retun=[]
-                    retun.append(dic["IP"])
-                    retun.append(dic["WORKING"])
-                    retun.append(dic["STATUS"])
-                    retun.append(dic["ALIST"])
-                    if request.headers.get("X-Forwarded-For")=='107.137.157.174':
-                        return(str(retun))
+                curs=db.cursor()
+                curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic["IP"],))
+                db.commit()  
+                retun=[]
+                retun.append(dic["IP"])
+                retun.append(dic["ALIST"])
+                if request.headers.get("X-Forwarded-For")=='107.137.157.174':
+                    return(str(retun))
             print("nothing to return to request")
         except Exception as e:
             print(e)
@@ -164,19 +141,10 @@ def write_info():
     data = request.form
     IP=data.get("IP")
     status=data.get("status")
-    done=False
-    while not done:
-        try:
-            db=get_db()
-            curs=db.cursor()
-            curs.execute("UPDATE api SET STATUS = ? WHERE IP = ?", (status, IP))
-            db.commit()
-            curs=db.cursor()
-            curs.execute("UPDATE api SET WORKING = ? WHERE IP = ?", ("done", IP))
-            db.commit()
-        except Exception as e:
-            print("exception"+e)
-            done=False
+    with open('db.txt', 'r') as file:
+        content = file.read()
+    with open('db.txt', 'w') as file:
+        file.write(content+','+str(IP)+','+str(status))
     return("done")
 @app.route('/api/setup', methods=['GET'])
 def api_data():
