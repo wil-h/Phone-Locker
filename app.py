@@ -74,13 +74,6 @@ def close_db(error):
         db.close()
 
 
-@app.route('/api/view', methods=['GET'])
-def see():
-    db=get_db()
-    cursor = db.execute('SELECT * FROM api')
-    al=cursor.fetchall()
-    alist=[dict(row) for row in al]
-    return(str(alist))
 
 @app.route('/api/startstatus', methods=['POST'])
 def startstatus():
