@@ -92,6 +92,15 @@ def startstatus():
     return("started")
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
+    with open('started.txt', 'r') as file:
+        started = file.read()
+    if request.headers.get("X-Forwarded-For") not in started:
+        db=get_db()
+        curs=db.cursor()
+        curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",request.headers.get("X-Forwarded-For"),))
+        db.commit()
+        return("false")
+        
     with open('db.txt', 'r') as file:
         content = file.read()
     list=content.split(',')
@@ -106,6 +115,10 @@ def getstatus():
                 removed=removed+','+str(list[y])
             with open('db.txt', 'w') as file:
                 file.write(str(removed))
+            with open('started.txt', 'r') as file:
+                started = file.read()   
+            with open('started.txt', 'w') as file:
+                file.write(started.replace(request.headers.get("X-Forwarded-For"),""))
             return(str(status))
     return("waiting")
 @app.route('/api/startprocess', methods=['GET'])
@@ -120,6 +133,10 @@ def search():
                 curs=db.cursor()
                 curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic["IP"],))
                 db.commit()  
+                with open('started.txt', 'r') as file:
+                    started = file.read()
+                with open('started.txt', 'w') as file:
+                    file.write(started+str(dic["IP"]))
                 retun=[]
                 retun.append(dic["IP"])
                 retun.append(dic["ALIST"])
