@@ -8,22 +8,22 @@
       width: 1000px;
       height: 1000px;
     }
-    body.disable-scroll {
+    body {
+      caret-color: transparent;
       overflow: hidden;
       position: fixed;
+      display: flex;
       width: 100%;
       height: 100%;
       top: 0;
       left: 0;
-        }
-    body {
-      caret-color: transparent;
     }
+
   </style>
 </head>
 <body>
   <script>
-    let canvas;
+    let canvas = document.getElementById("canvas");
     let img;
     let actionlist=[];
     let lastFetchTime = 0;
@@ -33,10 +33,10 @@
     function setup() {
       canvas = createCanvas(1000, 1000);
       canvas.parent("canvas-container");
+      canvas.id="canvas"
     }
     //now just updates image
     function draw() {
-      // Control the frame rate to limit the frequency of draw calls
       frameRate(0.5);
       // Check if the time since the last fetch is greater than the interval
       if (millis() - lastFetchTime > fetchInterval) {
@@ -62,19 +62,26 @@
             console.error(error);
           });
 
+          //send an update ping
+          $.ajax({
+                type: "POST",
+                url: "/receive",
+                contentType: "application/json;charset=UTF-8",
+                data: JSON.stringify({ message: [""] }),
+            });    
         // Update the last fetch time
         lastFetchTime = millis();
       }
     }
     function mousePressed() {
-        actionlist=[];
-        actionlist.push("click",mouseX,mouseY);
-        $.ajax({
-            type: "POST",
-            url: "/receive",
-            contentType: "application/json;charset=UTF-8",
-            data: JSON.stringify({ message: actionlist }),
-        });   
+      actionlist=[];
+      actionlist.push("click",mouseX,mouseY);
+      $.ajax({
+          type: "POST",
+          url: "/receive",
+          contentType: "application/json;charset=UTF-8",
+          data: JSON.stringify({ message: actionlist }),
+      });   
     }
     document.addEventListener("keydown", function(event) {
         actionlist=[];
