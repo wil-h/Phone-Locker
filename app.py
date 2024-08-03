@@ -8,17 +8,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from flask import Flask, request, render_template, send_file, g, jsonify
 from PIL import Image
-import random
 #from waitress import serve
 import numpy as np
 import threading
-import tempfile
 import time
 import os   
-import logging
 import sqlite3
 import io
-import sys
 #TBD:
 #make tutorial
 #test with father
@@ -78,10 +74,10 @@ def startstatus():
     actionlst=request.data.decode('utf-8')
     db=get_db()
     curs=db.cursor()
-    curs.execute('DELETE FROM api WHERE IP = ?', (request.headers.get("X-Forwarded-For"),))
+    curs.execute('DELETE FROM api WHERE IP = ?', (request.remote_addr,))
     db.commit()
     print("preexisting rows deleted")
-    db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.headers.get("X-Forwarded-For"),"false","",actionlst))
+    db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.remote_addr,"false","",actionlst))
     db.commit()
 
     data = db.execute('SELECT * FROM api')
@@ -99,7 +95,7 @@ def getstatus():
             al=data.fetchall()
             dicti=[dict(row) for row in al]
             for dic in dicti:
-                if dic["IP"]==request.headers.get("X-Forwarded-For"):
+                if dic["IP"]==request.remote_addr:
                     if dic["WORKING"]=="done":
                         retun=dic["STATUS"]
                         curs=db.cursor()
@@ -153,16 +149,16 @@ def write_info():
 @app.route('/api/setup', methods=['GET'])
 def api_data():
     try:
-        if read_db(request.headers.get("X-Forwarded-For"))[7]!="[]" and read_db(request.headers.get("X-Forwarded-For"))[4]=="done":
+        if read_db(request.remote_addr)[7]!="[]" and read_db(request.remote_addr)[4]=="done":
             db=get_db()
             cursor = db.execute('SELECT * FROM al')
             al=cursor.fetchall()
             alist=[dict(row) for row in al]
             for dic in alist:
-                if dic["IP"]==request.headers.get("X-Forwarded-For"):
+                if dic["IP"]==request.remote_addr:
                     retun=dic["action_list"]
                     curs=db.cursor()
-                    curs.execute('DELETE FROM al WHERE IP = ?', (request.headers.get("X-Forwarded-For"),))
+                    curs.execute('DELETE FROM al WHERE IP = ?', (request.remote_addr,))
                     db.commit()
                     return jsonify(retun)
     except:
@@ -175,14 +171,14 @@ def home():
         db=get_db()
         curs=db.cursor()
         try:
-            curs.execute('DELETE FROM al WHERE IP = ?', (request.headers.get("X-Forwarded-For"),))
+            curs.execute('DELETE FROM al WHERE IP = ?', (request.remote_addr,))
             db.commit()
         except:
             donothing="nothing"
         done=False
         while not done:
             try:
-                db.execute('INSERT INTO al (IP, URL, FIRST_TIME, DATA_RECEIVED, DONE, DATA, EMPTY, RECEIVED, action_list, QUEUE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (request.headers.get("X-Forwarded-For"), "", "True", "False", "False", "[]", "False", "False", "[]", "[]"))
+                db.execute('INSERT INTO al (IP, URL, FIRST_TIME, DATA_RECEIVED, DONE, DATA, EMPTY, RECEIVED, action_list, QUEUE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (request.remote_addr, "", "True", "False", "False", "[]", "False", "False", "[]", "[]"))
                 db.commit()
                 done=True
             except:
@@ -194,7 +190,7 @@ def aiisdumb():
     with app.app_context():
         db=get_db()
         curs=db.cursor()
-        curs.execute("UPDATE al SET URL = ? WHERE IP = ?", ("https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom", request.headers.get("X-Forwarded-For")))
+        curs.execute("UPDATE al SET URL = ? WHERE IP = ?", ("https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom", request.remote_addr))
         db.commit()
     return render_template('aiisdumb.html')
 @app.route('/logincanvas')
@@ -203,7 +199,7 @@ def aiisdumbcanvas():
     with app.app_context():
         db=get_db()
         curs=db.cursor()
-        curs.execute("UPDATE al SET URL = ? WHERE IP = ?", ("https://www.instructure.com/canvas/login", request.headers.get("X-Forwarded-For")))
+        curs.execute("UPDATE al SET URL = ? WHERE IP = ?", ("https://www.instructure.com/canvas/login", request.remote_addr))
         db.commit()
     return render_template('aiisdumb.html')
 
@@ -259,7 +255,7 @@ def selenium(IP):
         while(driver.current_url=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom" or driver.current_url=="https://canvas.instructure.com/"):
             time.sleep(0.1)
         #runs when new page is loaded
-        while(driver.current_url!="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom" and driver.title!="Dashboard"):
+        while(len(driver.find_elements(By.ID("66aeee93-507d-479a-a3ef-8f494af43945")))==0 and driver.title!="Dashboard"):
             old_url=driver.current_url
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))      
             rep=0
@@ -421,27 +417,27 @@ def selenium(IP):
 @app.route('/receive', methods=['POST'])
 def recieve():
     datal=request.get_json().get("message")
-    if(read_db(request.headers.get("X-Forwarded-For"))[11]!=""):#image has loaded
+    if(read_db(request.remote_addr)[11]!=""):#image has loaded
         data_received=True
         db=get_db()
-        ie=read_db(request.headers.get("X-Forwarded-For"))
-        data=eval(read_db(request.headers.get("X-Forwarded-For"))[12])
+        ie=read_db(request.remote_addr)
+        data=eval(read_db(request.remote_addr)[12])
         data.append(str(datal))
         cursor=db.cursor()
         done=False
         while not done:
             try:
-                cursor.execute("UPDATE al SET QUEUE = ? WHERE IP = ?", (str(data), request.headers.get("X-Forwarded-For")))
+                cursor.execute("UPDATE al SET QUEUE = ? WHERE IP = ?", (str(data), request.remote_addr))
                 db.commit()
                 done=True
             except:
                 nothing="nothing"
-        while(len(eval(read_db(request.headers.get("X-Forwarded-For"))[12]))>0):
-            if(read_db(request.headers.get("X-Forwarded-For"))[4]=="False"):
+        while(len(eval(read_db(request.remote_addr)[12]))>0):
+            if(read_db(request.remote_addr)[4]=="False"):
                 done=False
                 while not done:
                     try:
-                        cursor.execute("UPDATE al SET DATA = ? WHERE IP = ?", (str("["+str('"'+eval(read_db(request.headers.get("X-Forwarded-For"))[12])[0]+'"')+"]"), request.headers.get("X-Forwarded-For")))
+                        cursor.execute("UPDATE al SET DATA = ? WHERE IP = ?", (str("["+str('"'+eval(read_db(request.remote_addr)[12])[0]+'"')+"]"), request.remote_addr))
                         db.commit()
                         done=True
                     except:
@@ -449,7 +445,7 @@ def recieve():
                 done=False
                 while not done:
                     try:
-                        cursor.execute("UPDATE al SET DATA_RECEIVED = ? WHERE IP = ?", ("True", request.headers.get("X-Forwarded-For")))
+                        cursor.execute("UPDATE al SET DATA_RECEIVED = ? WHERE IP = ?", ("True", request.remote_addr))
                         db.commit()
                         done=True
                     except:
@@ -457,33 +453,33 @@ def recieve():
                 done=False
                 while not done:
                     try:
-                        cursor.execute("UPDATE al SET QUEUE = ? WHERE IP = ?", (str(eval(read_db(request.headers.get("X-Forwarded-For"))[12])[1:]), request.headers.get("X-Forwarded-For")))
+                        cursor.execute("UPDATE al SET QUEUE = ? WHERE IP = ?", (str(eval(read_db(request.remote_addr)[12])[1:]), request.remote_addr))
                         db.commit()
                         done=True
                     except:
                         nothing="nothing"
                 #FIX FOR REALLY WEIRD MOBILE BROWSER DATA LOSS BUG 
          #       if data=="[]":
-         #           cursor.execute("UPDATE al SET EMPTY = ? WHERE IP = ?", ("True", request.headers.get("X-Forwarded-For")))
+         #           cursor.execute("UPDATE al SET EMPTY = ? WHERE IP = ?", ("True", request.remote_addr))
          #       else:
-         #           cursor.execute("UPDATE al SET EMPTY = ? WHERE IP = ?", ("False", request.headers.get("X-Forwarded-For")))
-         #           while read_db(request.headers.get("X-Forwarded-For"))[10]=="False":
-         #               cursor.execute("UPDATE al SET DATA = ? WHERE IP = ?", (str(data), request.headers.get("X-Forwarded-For")))
+         #           cursor.execute("UPDATE al SET EMPTY = ? WHERE IP = ?", ("False", request.remote_addr))
+         #           while read_db(request.remote_addr)[10]=="False":
+         #               cursor.execute("UPDATE al SET DATA = ? WHERE IP = ?", (str(data), request.remote_addr))
          #               db.commit()
           #              time.sleep(0.1)
-          #      cursor.execute("UPDATE al SET RECEIVED = ? WHERE IP = ?", ("False", request.headers.get("X-Forwarded-For")))
+          #      cursor.execute("UPDATE al SET RECEIVED = ? WHERE IP = ?", ("False", request.remote_addr))
           #      db.commit()
     return {'status': 'success'}
 @app.route('/usergenerate')
 def UserGenerate():
-    ie=read_db(request.headers.get("X-Forwarded-For"))
+    ie=read_db(request.remote_addr)
     first_time=ie[3]
     done=ie[5]
     data_received=ie[4]
     image=ie[11]
     if done=="False":
         if first_time=="True":
-            thread = threading.Thread(target=selenium, args=(request.headers.get("X-Forwarded-For"),))
+            thread = threading.Thread(target=selenium, args=(request.remote_addr,))
             thread.start()
             first_time=False
             db=get_db()
@@ -491,7 +487,7 @@ def UserGenerate():
             done=False
             while not done:
                 try:
-                    cursor.execute("UPDATE al SET FIRST_TIME = ? WHERE IP = ?", ("False", request.headers.get("X-Forwarded-For")))
+                    cursor.execute("UPDATE al SET FIRST_TIME = ? WHERE IP = ?", ("False", request.remote_addr))
                     db.commit()
                     done=True
                 except:
