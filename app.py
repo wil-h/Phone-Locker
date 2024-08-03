@@ -8,7 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from flask import Flask, request, render_template, send_file, g, jsonify
 from PIL import Image
-#from waitress import serve
+from waitress import serve
 import numpy as np
 import threading
 import time
@@ -510,6 +510,6 @@ def UserGenerate():
        return send_file('images/success.PNG')      
 
 if __name__ == '__main__':
-    #serve(app,host = '0.0.0.0',port = 5000)
+    serve(app,host = '0.0.0.0',port = 5000)
     #app.run(host='0.0.0.0')
-    app.run(debug=True,host='0.0.0.0')
+    #app.run(debug=True,host='0.0.0.0')
