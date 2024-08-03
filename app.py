@@ -9,12 +9,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from flask import Flask, request, render_template, send_file, g, jsonify
 from PIL import Image
 import random
-from waitress import serve
+#from waitress import serve
 import numpy as np
 import threading
 import tempfile
 import time
-import urllib3
 import os   
 import logging
 import sqlite3
@@ -24,8 +23,8 @@ import sys
 #make tutorial
 #test with father
 
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR) 
+#log = logging.getLogger('werkzeug')
+#log.setLevel(logging.ERROR) 
 
 app = Flask(__name__)
 app.config['DATABASE'] = os.path.join(app.root_path, 'database.db')
@@ -72,55 +71,45 @@ def close_db(error):
     db = g.pop('db', None)
     if db is not None:
         db.close()
-
-
-
+#api stuff
+#------------------------------------------------------------------------------------------------------------------
 @app.route('/api/startstatus', methods=['POST'])
 def startstatus():
     actionlst=request.data.decode('utf-8')
     db=get_db()
     curs=db.cursor()
-    data = db.execute('SELECT * FROM api WHERE IP = ?',(request.headers.get("X-Forwarded-For"),))
-    row=data.fetchall()
-    if row:
-        db=get_db()
-        curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', (actionlst,request.headers.get("X-Forwarded-For"),))
-        db.commit()
-    else:
-        db.execute('INSERT INTO api (IP, ALIST) VALUES (?, ?)', (request.headers.get("X-Forwarded-For"), actionlst))
-        db.commit()   
+    curs.execute('DELETE FROM api WHERE IP = ?', (request.headers.get("X-Forwarded-For"),))
+    db.commit()
+    print("preexisting rows deleted")
+    db.execute('INSERT INTO api (IP, WORKING, STATUS, ALIST) VALUES (?, ?, ?, ?)', (request.headers.get("X-Forwarded-For"),"false","",actionlst))
+    db.commit()
+
+    data = db.execute('SELECT * FROM api')
+    al=data.fetchall()
+    dicti=[dict(row) for row in al]
+    print("dic:",dicti) 
+    
     return("started")
 @app.route('/api/getstatus', methods=["GET"])
 def getstatus():
-    with open('started.txt', 'r') as file:
-        started = file.read()
-    if request.headers.get("X-Forwarded-For") not in started:
-        db=get_db()
-        curs=db.cursor()
-        curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",request.headers.get("X-Forwarded-For"),))
-        db.commit()
-        return("false")
-        
-    with open('db.txt', 'r') as file:
-        content = file.read()
-    list=content.split(',')
-    for x in range(1,len(list)-1,2):
-        IP=list[x]
-        if IP==request.headers.get("X-Forwarded-For"):
-            status=list[x+1]
-            removed=''
-            for y in range(1,x-1):
-                removed=removed+','+str(list[y])
-            for y in range(x+2,len(list)-1):
-                removed=removed+','+str(list[y])
-            with open('db.txt', 'w') as file:
-                file.write(str(removed))
-            with open('started.txt', 'r') as file:
-                started = file.read()   
-            with open('started.txt', 'w') as file:
-                file.write(started.replace(request.headers.get("X-Forwarded-For"),""))
-            return(str(status))
-    return("waiting")
+    with app.app_context():
+        try:
+            db=get_db()
+            data = db.execute('SELECT * FROM api')
+            al=data.fetchall()
+            dicti=[dict(row) for row in al]
+            for dic in dicti:
+                if dic["IP"]==request.headers.get("X-Forwarded-For"):
+                    if dic["WORKING"]=="done":
+                        retun=dic["STATUS"]
+                        curs=db.cursor()
+                        curs.execute('DELETE FROM api WHERE IP = ?', (dic["IP"],))
+                        db.commit()
+                        print("deleted from db")
+                        return(retun)
+        except Exception as e:
+            return("waiting")
+        return("waiting")
 @app.route('/api/startprocess', methods=['GET'])
 def search():
     with app.app_context():
@@ -130,17 +119,15 @@ def search():
             al=data.fetchall()
             dicti=[dict(row) for row in al]
             for dic in dicti:
-                curs=db.cursor()
-                curs.execute('UPDATE api SET ALIST = ? WHERE IP = ?', ("",dic["IP"],))
-                db.commit()  
-                with open('started.txt', 'r') as file:
-                    started = file.read()
-                with open('started.txt', 'w') as file:
-                    file.write(started+str(dic["IP"]))
-                retun=[]
-                retun.append(dic["IP"])
-                retun.append(dic["ALIST"])
-                if request.headers.get("X-Forwarded-For")=='107.137.157.174':
+                if dic["WORKING"]=="false":
+                    curs=db.cursor()
+                    curs.execute("UPDATE api SET WORKING = ? WHERE IP = ?", ("true", dic["IP"]))
+                    db.commit()
+                    retun=[]
+                    retun.append(dic["IP"])
+                    retun.append(dic["WORKING"])
+                    retun.append(dic["STATUS"])
+                    retun.append(dic["ALIST"])
                     return(str(retun))
         except Exception as e:
             return("none")
@@ -150,10 +137,18 @@ def write_info():
     data = request.form
     IP=data.get("IP")
     status=data.get("status")
-    with open('db.txt', 'r') as file:
-        content = file.read()
-    with open('db.txt', 'w') as file:
-        file.write(content+','+str(IP)+','+str(status))
+    done=False
+    while not done:
+        try:
+            db=get_db()
+            curs=db.cursor()
+            curs.execute("UPDATE api SET STATUS = ? WHERE IP = ?", (status, IP))
+            db.commit()
+            curs=db.cursor()
+            curs.execute("UPDATE api SET WORKING = ? WHERE IP = ?", ("done", IP))
+            db.commit()
+        except:
+            done=False
     return("done")
 @app.route('/api/setup', methods=['GET'])
 def api_data():
@@ -167,12 +162,13 @@ def api_data():
                 if dic["IP"]==request.headers.get("X-Forwarded-For"):
                     retun=dic["action_list"]
                     curs=db.cursor()
-                    curs.execute('UPDATE al SET action_list = ? WHERE IP = ?', ("",dic["IP"],))
+                    curs.execute('DELETE FROM al WHERE IP = ?', (request.headers.get("X-Forwarded-For"),))
                     db.commit()
                     return jsonify(retun)
     except:
         return jsonify("none")
     return jsonify("none")
+#------------------------------------------------------------------------------------------------------------------
 @app.route('/')
 def home():
     with app.app_context():
@@ -192,7 +188,7 @@ def home():
             except:
                 nothing="nothing"
     return(render_template('usernamepassword.html'))
-@app.route('/login')
+@app.route('/loginteams')
 def aiisdumb():
     #make other routes for other services
     with app.app_context():
@@ -201,6 +197,16 @@ def aiisdumb():
         curs.execute("UPDATE al SET URL = ? WHERE IP = ?", ("https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom", request.headers.get("X-Forwarded-For")))
         db.commit()
     return render_template('aiisdumb.html')
+@app.route('/logincanvas')
+def aiisdumbcanvas():
+    #make other routes for other services
+    with app.app_context():
+        db=get_db()
+        curs=db.cursor()
+        curs.execute("UPDATE al SET URL = ? WHERE IP = ?", ("https://www.instructure.com/canvas/login", request.headers.get("X-Forwarded-For")))
+        db.commit()
+    return render_template('aiisdumb.html')
+
 @app.route('/ug')
 def ug():
     return render_template("usergenerate.html")
@@ -250,10 +256,10 @@ def selenium(IP):
         driver.get(url)
         driver.set_window_size(750, 750)
         actions = ActionChains(driver)
-        while(driver.current_url==url):
+        while(driver.current_url=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom" or driver.current_url=="https://canvas.instructure.com/"):
             time.sleep(0.1)
         #runs when new page is loaded
-        while(driver.current_url!=url):
+        while(driver.current_url!="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom" and driver.title!="Dashboard"):
             old_url=driver.current_url
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))      
             rep=0
@@ -269,7 +275,6 @@ def selenium(IP):
                         done=True
                     except:
                         nothing="nothing"
-            #runs while page is being edited
             with app.app_context():
                 while read_db(IP)[4]=="False" or read_db(IP)[8]=="[]":
                     #build the screen
@@ -298,7 +303,7 @@ def selenium(IP):
                     if driver.current_url==url:
                         break
                     time.sleep(0.1)
-            if driver.current_url==url:
+            if driver.current_url=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom" or driver.title=="Dashboard":
                 break
             if rep>20000:
                 break 
@@ -373,6 +378,14 @@ def selenium(IP):
                         actions.perform()
                         action_list.append("C")
                         action_list.append(str(x)+","+str(y))
+                    if eval(action[0])[0]=="scroll":
+                        scroll_percentage=eval(action[0])[1]
+                        total_height = driver.execute_script("return document.body.scrollHeight")
+                        scroll_position = (total_height * scroll_percentage) / 100
+                        driver.execute_script(f"window.scrollTo(0, {scroll_position});")
+                        action_list.append('S')
+                        action_list.append(scroll_percentage)
+
                 except:
                     nothing="nothing"
                 with app.app_context():
@@ -390,7 +403,7 @@ def selenium(IP):
                                 nothing="nothing"
                         if(eval(read_db(IP)[8])!=olddata):
                             break
-        if driver.current_url==url:
+        if driver.current_url==url or driver.title=="Dashboard":
             with app.app_context():
                 sendESP(action_list, IP)
                 db=get_db()
@@ -403,9 +416,8 @@ def selenium(IP):
                         done=True
                     except:
                         nothing="nothing"
-    except Exception as e:
-        nothing="nothing"
-#all this is still good for new method, just transferring data between two functions that need editing
+    except Exception as e:  
+        print(e)
 @app.route('/receive', methods=['POST'])
 def recieve():
     datal=request.get_json().get("message")
@@ -415,7 +427,6 @@ def recieve():
         ie=read_db(request.headers.get("X-Forwarded-For"))
         data=eval(read_db(request.headers.get("X-Forwarded-For"))[12])
         data.append(str(datal))
-        #could restructure to put all received into a queue and just wait here to send the next thing using while eval(read[8])!=[]: time.sleep(0.1), then send the next thing and remove it from the queue, this should also improve framerate 
         cursor=db.cursor()
         done=False
         while not done:
@@ -503,6 +514,6 @@ def UserGenerate():
        return send_file('images/success.PNG')      
 
 if __name__ == '__main__':
-    serve(app,host = '0.0.0.0',port = 5000)
+    #serve(app,host = '0.0.0.0',port = 5000)
     #app.run(host='0.0.0.0')
-    #app.run(debug=True,host='0.0.0.0')
+    app.run(debug=True,host='0.0.0.0')
