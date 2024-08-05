@@ -298,7 +298,7 @@ def selenium(IP):
                         break
                     if driver.title=="Teams and Channels | Microsoft Teams" or driver.title=="Dashboard":
                         break
-                    time.sleep(0.1)
+                    time.sleep(1)
             if driver.title=="Teams and Channels | Microsoft Teams" or driver.title=="Dashboard":
                 break
             if rep>20000:
