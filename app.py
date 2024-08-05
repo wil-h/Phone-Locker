@@ -296,17 +296,11 @@ def selenium(IP):
                         data_received=read_db(IP)[4]
                     if rep>20000:
                         break
-                    if driver.title=="Dashboard":
+                    if driver.title=="Teams and Channels | Microsoft Teams" or driver.title=="Dashboard":
                         break
-                    for element in driver.find_elements(By.CLASS_NAME, "row text-title"):
-                        if element.text=="Stay signed in?":
-                            break
-                    time.sleep(1)
-            if driver.title=="Dashboard":
+                    time.sleep(0.1)
+            if driver.title=="Teams and Channels | Microsoft Teams" or driver.title=="Dashboard":
                 break
-            for element in driver.find_elements(By.CLASS_NAME, "row text-title"):
-                if element.text=="Stay signed in?":
-                    break
             if rep>20000:
                 break 
             with app.app_context():
