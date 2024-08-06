@@ -255,7 +255,7 @@ def selenium(IP):
         while(driver.current_url=="https://teams.microsoft.com/_#/apps/66aeee93-507d-479a-a3ef-8f494af43945/sections/classroom" or driver.current_url=="https://canvas.instructure.com/"):
             time.sleep(0.1)
         #runs when new page is loaded
-        while(driver.title!="Teams and Channels | Microsoft Teams" and driver.title!="Dashboard"):
+        while(driver.current_url!="https://login.microsoftonline.com/login.srf" and driver.title!="Dashboard"):
             old_url=driver.current_url
             WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))      
             rep=0
@@ -296,10 +296,10 @@ def selenium(IP):
                         data_received=read_db(IP)[4]
                     if rep>20000:
                         break
-                    if driver.title=="Teams and Channels | Microsoft Teams" or driver.title=="Dashboard":
+                    if driver.current_url=="https://login.microsoftonline.com/login.srf" or driver.title=="Dashboard":
                         break
                     time.sleep(0.1)
-            if driver.title=="Teams and Channels | Microsoft Teams" or driver.title=="Dashboard":
+            if driver.current_url=="https://login.microsoftonline.com/login.srf" or driver.title=="Dashboard":
                 break
             if rep>20000:
                 break 
