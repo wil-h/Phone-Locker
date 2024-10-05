@@ -109,24 +109,21 @@ def getstatus():
 @app.route('/api/startprocess', methods=['GET'])
 def search():
     with app.app_context():
-        try:
-            db=get_db()
-            data = db.execute('SELECT * FROM api')
-            al=data.fetchall()
-            dicti=[dict(row) for row in al]
-            for dic in dicti:
-                if dic["WORKING"]=="false":
-                    curs=db.cursor()
-                    curs.execute("UPDATE api SET WORKING = ? WHERE IP = ?", ("true", dic["IP"]))
-                    db.commit()
-                    retun=[]
-                    retun.append(dic["IP"])
-                    retun.append(dic["WORKING"])
-                    retun.append(dic["STATUS"])
-                    retun.append(dic["ALIST"])
-                    return(str(retun))
-        except Exception as e:
-            return("none")
+        db=get_db()
+        data = db.execute('SELECT * FROM api')
+        al=data.fetchall()
+        dicti=[dict(row) for row in al]
+        for dic in dicti:
+            if dic["WORKING"]=="false":
+                curs=db.cursor()
+                curs.execute("UPDATE api SET WORKING = ? WHERE IP = ?", ("true", dic["IP"]))
+                db.commit()
+                retun=[]
+                retun.append(dic["IP"])
+                retun.append(dic["WORKING"])
+                retun.append(dic["STATUS"])
+                retun.append(dic["ALIST"])
+                return(str(retun))
         return("none")
 @app.route("/api/writedb", methods=["POST"])
 def write_info():
