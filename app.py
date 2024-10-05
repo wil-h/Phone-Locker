@@ -126,7 +126,7 @@ def search():
                 retun=[]
                 retun.append(dic["IP"])
                 retun.append(dic["ALIST"])
-                print("request accepted: "+retun)
+                print("request accepted: "+str(retun))
                 return(str(retun))
         return("none")
 @app.route("/api/writedb", methods=["POST"])
