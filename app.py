@@ -16,6 +16,7 @@ import os
 import sys
 import sqlite3
 import io
+import signal
 #TBD:
 #make tutorial
 #test with father
@@ -110,7 +111,8 @@ def getstatus():
                             try:
                                 return(retun)
                             finally:
-                                os.execv(sys.executable, ['python'] + sys.argv)
+                                master_pid = os.getppid()  # Gets the Gunicorn master process ID
+                                os.kill(master_pid, signal.SIGHUP)  # Sends the SIGHUP signal to restart workers
                     if dic["WORKING"]=="false":
                         db=get_db()
                         curs=db.cursor()
