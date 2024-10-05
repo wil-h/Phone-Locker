@@ -13,6 +13,7 @@ import numpy as np
 import threading
 import time
 import os   
+import sys
 import sqlite3
 import io
 #TBD:
@@ -106,7 +107,10 @@ def getstatus():
                             curs.execute('UPDATE api SET STATUS = ?',('',))
                             db.commit()
                             print("deleted from db")
-                            return(retun)
+                            try:
+                                return(retun)
+                            finally:
+                                os.execv(sys.executable, ['python'] + sys.argv)
                     if dic["WORKING"]=="false":
                         db=get_db()
                         curs=db.cursor()
