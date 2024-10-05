@@ -103,7 +103,7 @@ def getstatus():
                             db.commit()
                         else:
                             curs=db.cursor()
-                            curs.execute('DELETE * FROM api')
+                            curs.execute('UPDATE api SET STATUS = ?',('',))
                             db.commit()
                             print("deleted from db")
                             return(retun)
