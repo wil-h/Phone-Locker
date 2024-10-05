@@ -103,6 +103,8 @@ def getstatus():
                         db.commit()
                         print("deleted from db")
                         return(retun)
+                    if dic["WORKING"]=="false":
+                        return('false, request not taken by mac')
         except Exception as e:
             return("waiting")
         return("waiting")
@@ -120,8 +122,6 @@ def search():
                 db.commit()
                 retun=[]
                 retun.append(dic["IP"])
-                retun.append(dic["WORKING"])
-                retun.append(dic["STATUS"])
                 retun.append(dic["ALIST"])
                 return(str(retun))
         return("none")
