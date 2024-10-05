@@ -110,7 +110,7 @@ def getstatus():
                     if dic["WORKING"]=="false":
                         db=get_db()
                         curs=db.cursor()
-                        curs.execute('DELETE * FROM api')
+                        curs.execute('UPDATE api SET STATUS = ?',('',))
                         db.commit()
                         return('false, request not taken by mac')
         except Exception as e:
