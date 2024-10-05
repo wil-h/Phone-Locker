@@ -98,11 +98,15 @@ def getstatus():
                 if dic["IP"]==request.headers.get("X-Forwarded-For"):
                     if dic["WORKING"]=="done":
                         retun=dic["STATUS"]
-                        curs=db.cursor()
-                        curs.execute('DELETE * FROM api')
-                        db.commit()
-                        print("deleted from db")
-                        return(retun)
+                        if retun=="":
+                            db.cursor().execute('UPDATE api SET WORKING = ? WHERE STATUS = ?',('true','',))
+                            db.commit()
+                        else:
+                            curs=db.cursor()
+                            curs.execute('DELETE * FROM api')
+                            db.commit()
+                            print("deleted from db")
+                            return(retun)
                     if dic["WORKING"]=="false":
                         db=get_db()
                         curs=db.cursor()
