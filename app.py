@@ -99,14 +99,15 @@ def getstatus():
                     if dic["WORKING"]=="done":
                         retun=dic["STATUS"]
                         curs=db.cursor()
-                        curs.execute('DELETE FROM api WHERE IP = ?', (dic["IP"],))
+                        curs.execute('DELETE * FROM api')
                         db.commit()
                         print("deleted from db")
                         return(retun)
                     if dic["WORKING"]=="false":
                         db=get_db()
                         curs=db.cursor()
-                        curs.execute('DELETE FROM api WHERE IP = ?', (request.headers.get("X-Forwarded-For"),))
+                        curs.execute('DELETE * FROM api')
+                        db.commit()
                         return('false, request not taken by mac')
         except Exception as e:
             return("waiting")
