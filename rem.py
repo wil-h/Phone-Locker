@@ -14,7 +14,7 @@ while True:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute('DELETE FROM api WHERE ALIST = ?',('',))
-        cursor.execute('DELETE FROMO api WHERE WORKING = ?',('done',))
+        cursor.execute('DELETE FROMO api WHERE WORKING = ? AND STATUS = ?',('done','',))
         conn.commit()
         cursor.close()
         conn.close()
