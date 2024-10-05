@@ -130,6 +130,7 @@ def search():
         data = db.execute('SELECT * FROM api')
         al=data.fetchall()
         dicti=[dict(row) for row in al]
+        print(dicti)
         for dic in dicti:
             if dic["WORKING"]=="false":
                 curs=db.cursor()
