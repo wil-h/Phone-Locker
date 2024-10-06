@@ -112,10 +112,10 @@ def getstatus():
                                 return(retun)
                             finally:
                                 with app.app_context():
-                                db = get_db()
-                                with app.open_resource('schema.sql') as f:
-                                    db.executescript(f.read().decode('utf8'))
-                                    db.commit()
+                                    db = get_db()
+                                    with app.open_resource('schema.sql') as f:
+                                        db.executescript(f.read().decode('utf8'))
+                                        db.commit()
                                 master_pid = os.getppid()  # Gets the Gunicorn master process ID
                                 os.kill(master_pid, signal.SIGHUP)  # Sends the SIGHUP signal to restart workers
                     if dic["WORKING"]=="false":
