@@ -13,8 +13,9 @@ def start():
 @app.route('/api/getstatus', methods=['GET'])
 def get():
     with open('database.txt', 'r') as file:
-        if file.read()!="working":
-            return file.read()
+        read=file.read()
+        if read!="working":
+            return read
     return 'waiting'
 
 @app.route('/api/startprocess', methods=['GET'])
@@ -42,4 +43,4 @@ def write():
 
 if __name__ == '__main__':
     serve(app,host = '0.0.0.0',port = 5000)
-   # app.run(debug=True,host='0.0.0.0')
+    #app.run(debug=True,host='0.0.0.0')
